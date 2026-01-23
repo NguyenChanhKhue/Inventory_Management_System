@@ -4,9 +4,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 
-import org.springframework.data.annotation.Id;
-import org.springframework.transaction.TransactionStatus;
+import jakarta.persistence.Id;
 
+import com.Khue.InventoryMgtSystem.enums.TransactionStatus;
 import com.Khue.InventoryMgtSystem.enums.TransactionType;
 
 

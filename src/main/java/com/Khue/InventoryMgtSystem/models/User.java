@@ -2,8 +2,7 @@ package com.Khue.InventoryMgtSystem.models;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import org.springframework.data.annotation.Id;
+import jakarta.persistence.Id;
 
 import com.Khue.InventoryMgtSystem.enums.UserRole;
 
