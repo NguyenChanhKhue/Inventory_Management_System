@@ -50,14 +50,14 @@ public class Product {
   private String descripton;
 
   private LocalDateTime expDateTime;
-
+  
   private String imgUrl;
 
   private final LocalDateTime createAt = LocalDateTime.now();
 
   @ManyToOne
   @JoinColumn(name = "category_id")
-  private Category category;
+  private Category category; // product N - 1 category
 
   @Override
   public String toString() {
