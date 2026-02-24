@@ -47,7 +47,7 @@ public class Product {
   @Min(value = 0 , message = "stock quantity cannot be negative value")
   private int stockQuantity;
 
-  private String descripton;
+  private String description;
 
   private LocalDateTime expDateTime;
   
@@ -62,7 +62,7 @@ public class Product {
   @Override
   public String toString() {
     return "Product [id=" + id + ", name=" + name + ", sku=" + sku + ", price=" + price + ", stockQuantity="
-        + stockQuantity + ", descripton=" + descripton + ", expDateTime=" + expDateTime + ", imgUrl=" + imgUrl
+        + stockQuantity + ", descripton=" + description + ", expDateTime=" + expDateTime + ", imgUrl=" + imgUrl
         + ", createAt=" + createAt + "]";
   }
 
