@@ -39,7 +39,7 @@ public class SecurityConfig {
             .accessDeniedHandler(customAccessDenialHandler) // chặn user đă login nhưng chưa đủ quyền
             .authenticationEntryPoint(customAuthenticationEntryPoint)) // chặn user chưa login mà access API protected
         .authorizeHttpRequests(request -> request
-            .requestMatchers("/api/auth/**").permitAll() // cho phép tất cả user đều vào được API này
+            .requestMatchers("/api/auth/**").permitAll()// cho phép tất cả user đều vào được API này
             .anyRequest().authenticated() // tất cả API khác thì không
         )
         .sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // không lưu session, mỗi req phải được authenticae

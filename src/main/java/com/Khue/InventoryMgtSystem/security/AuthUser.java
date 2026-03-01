@@ -30,9 +30,10 @@ public class AuthUser implements UserDetails{
    return user.getPassword();
   }
 
+  // lấy email từ token để check ra username
   @Override
   public String getUsername() {
-   return user.getName();
+   return user.getEmail();
   }
 
   

@@ -18,10 +18,11 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @AllArgsConstructor
-
+@NoArgsConstructor
 @Table(name="users")
 @Data
 @Builder
