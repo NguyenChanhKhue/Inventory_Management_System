@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @AllArgsConstructor
@@ -21,6 +22,7 @@ import lombok.Data;
 @Table(name="suppliers")
 @Data
 @Builder
+@NoArgsConstructor
 public class Supplier {
   @Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
