@@ -17,10 +17,11 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @AllArgsConstructor
-
+@NoArgsConstructor
 @Table(name="categories")
 @Data
 @Builder
@@ -41,8 +42,5 @@ public class Category {
   public String toString() {
     return "Category [id=" + id + ", name=" + name + "]";
   }
-
-
-  
 
 }
