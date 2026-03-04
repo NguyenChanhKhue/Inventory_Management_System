@@ -22,6 +22,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @AllArgsConstructor
@@ -29,6 +30,7 @@ import lombok.Data;
 @Table(name="products")
 @Data
 @Builder
+@NoArgsConstructor
 public class Product {
   @Id
 	@GeneratedValue(strategy=GenerationType.AUTO)
@@ -37,7 +39,7 @@ public class Product {
   @NotBlank(message = "name is required")
   private String name;
 
-  @NotBlank(message = "SKU is required") // stock keeping unit
+  @NotBlank(message = "SKU is required") // stock keeping unit (Đơn vị lưu kho)
   @Column(unique = true)
   private String sku;
 

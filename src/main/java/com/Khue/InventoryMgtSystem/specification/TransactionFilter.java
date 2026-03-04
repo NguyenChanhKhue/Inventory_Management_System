@@ -99,10 +99,10 @@ public class TransactionFilter {
     // New method for filtering transactions by month and year
     public static Specification<Transaction> byMonthAndYear(int month, int year) {
         return (root, query, criteriaBuilder) -> {
-            // Use the month and year functions on the createdAt date field
+            // Use the month and year functions on the createAt date field
             Expression<Integer> monthExpression = criteriaBuilder.function("month", Integer.class,
-                    root.get("createdAt"));
-            Expression<Integer> yearExpression = criteriaBuilder.function("year", Integer.class, root.get("createdAt"));
+                    root.get("createAt"));
+            Expression<Integer> yearExpression = criteriaBuilder.function("year", Integer.class, root.get("createAt"));
 
             // Create predicates for the month and year
             Predicate monthPredicate = criteriaBuilder.equal(monthExpression, month);

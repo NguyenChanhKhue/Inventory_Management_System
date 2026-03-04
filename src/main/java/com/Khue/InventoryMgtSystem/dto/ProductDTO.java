@@ -30,9 +30,9 @@ public class ProductDTO {
 
   private BigDecimal price;
   
-  private int stockQuantity;
+  private Integer stockQuantity;
 
-  private String descripton;
+  private String description;
 
   private LocalDateTime expDateTime;
 

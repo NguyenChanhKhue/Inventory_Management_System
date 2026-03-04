@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.Khue.InventoryMgtSystem.models.Product;
 
 public interface ProductRepository extends JpaRepository<Product , Long>{
-  List <Product> findByNameOrDescription(String name , String description);
+  List <Product> findByNameContainingOrDescriptionContaining(String name , String description); // seach product bằng tên hoặc desc
 }

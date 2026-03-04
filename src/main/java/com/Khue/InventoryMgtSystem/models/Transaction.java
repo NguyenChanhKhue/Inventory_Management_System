@@ -24,10 +24,11 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @AllArgsConstructor
-
+@NoArgsConstructor
 @Table(name="transactions")
 @Data
 @Builder
@@ -55,7 +56,7 @@ public class Transaction {
   private final LocalDateTime createAt =  LocalDateTime.now();
 
   @Column(name = "update_at")
-  private final LocalDateTime updateAt;
+  private LocalDateTime updateAt;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
