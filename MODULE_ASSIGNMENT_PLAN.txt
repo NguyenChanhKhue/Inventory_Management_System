@@ -1,0 +1,426 @@
+================================================================================
+            PHÂN CÔNG MODULE + CÁC VẤN ĐỀ CẦN GIẢI QUYẾT
+================================================================================
+
+Dự án: Hệ thống Quản lý Kho hàng (Inventory Management System)
+Ngôn ngữ: Java Spring Boot
+Framework: Spring Boot 4.0.1, Spring Security, JPA
+Công nghệ: JWT, BCrypt, ModelMapper
+
+================================================================================
+MODULE 1: AUTHENTICATION & SECURITY
+================================================================================
+
+Người phụ trách: [CẦN PHÂN CÔNG]
+
+Endpoints:
+  - POST /api/auth/register (Đăng ký)
+  - POST /api/auth/login (Đăng nhập)
+
+Công nghệ:
+  - Spring Security
+  - JWT Token
+  - Password Hashing (BCrypt)
+  - CORS Configuration
+
+VẤN ĐỀ CẦN GIẢI QUYẾT:
+  ☐ 1.1 Validation đầu vào cho Register/Login
+       - Kiểm tra email format hợp lệ (@)
+       - Kiểm tra email chưa tồn tại (unique constraint)
+       - Kiểm tra phone number không trống
+       - Kiểm tra password không trống
+       - Error message rõ ràng cho user
+
+  ☐ 1.2 JWT Token Management
+       - JWT expiration time (set timeout token)
+       - Verify token format đúng
+       - Handle expired token gracefully
+       - Extract user info từ token
+
+  ☐ 1.3 Password Security
+       - Ensure password được hash bằng BCrypt
+       - Không return password hash trong response
+       - Verify password đúng khi login
+
+  ☐ 1.4 Error Handling
+       - Return 401 khi token invalid/expired
+       - Return 400 khi credentials sai
+       - Return 409 khi email đã tồn tại
+
+================================================================================
+MODULE 2: USER MANAGEMENT
+================================================================================
+
+Người phụ trách: [CẦN PHÂN CÔNG]
+
+Endpoints:
+  - GET /api/user/all (Lấy tất cả user - ADMIN)
+  - GET /api/user/{id} (Lấy user theo ID)
+  - GET /api/user/current (Lấy user đang đăng nhập)
+  - PUT /api/user/update/{id} (Cập nhật user)
+  - DELETE /api/user/delete/{id} (Xóa user - ADMIN)
+  - GET /api/user/transaction/{userId} (Lấy giao dịch của user)
+
+VẤN ĐỀ CẦN GIẢI QUYẾT:
+  ☐ 2.1 User Profile Management
+       - Tồn Fields Validation
+       - Fields: id, name, email, password, phoneNumber, role
+       - Kiểm tra name không trống
+       - Kiểm tra phone format hợp lệ
+       - Email unique constraint
+
+  ☐ 2.2 User Roles & Authorization
+       - ADMIN role: xem tất cả user, delete user
+       - USER role: chỉ xem/update profile riêng của mình
+       - @PreAuthorize annotation trên controller
+       - Verify current user permission trước khi update/delete
+
+  ☐ 2.3 Update User Profile
+       - Kiểm tra user tồn tại trước update
+       - Prevent email change nếu email đã được dùng
+       - Return updated user mà không expose password
+
+  ☐ 2.4 Delete User
+       - Kiểm tra permission (ADMIN only)
+       - Xử lý soft delete hay hard delete?
+       - Cascade xóa transactions của user?
+
+  ☐ 2.5 Get Current User
+       - Extract user info từ JWT token
+       - Return đúng user đang login
+================================================================================
+MODULE 3: CATEGORY MANAGEMENT
+================================================================================
+
+Người phụ trách: [CẦN PHÂN CÔNG]
+
+Endpoints:
+  - POST /api/categories/add (Tạo category - ADMIN)
+  - GET /api/categories/all (Lấy tất cả category)
+  - GET /api/cateCRUD Validation
+       - Tên category không được trống
+       - Tên category phải unique
+       - Kiểm tra category tồn tại trước khi update/delete
+
+  ☐ 3.2 Authorization
+       - Chỉ ADMIN được tạo/update/delete category
+       - Public có thể view
+
+  ☐ 3.3 Delete Category
+       - Quyết định: soft delete hay hard delete?
+       - Nếu có sản phẩm - cascade xóa hay set category NULL?
+       - Return error nếu không thể xóa?
+
+  ☐ 3.4 Error Handling
+       - Return 400 nếu name trống
+       - Return 409 nếu name đã tồn tại
+       - Return 404 nếu category không tồn tại
+       - Đếm số sản phẩm trong mỗi category
+       - Hiển thị trong danh sách category
+
+  ☐ 3.5 Slug/URL Friendly
+       - Tạo slug từ category name cho URL
+
+================================================================================
+MODULE 4: PRODUCT MANAGEMENT
+================================================================================
+
+Người phụ trách: [CẦN PHÂN CÔNG]
+
+Endpoints:
+  - POST /api/products/add (Thêm sản phẩm - ADMIN)
+  - PUT /api/products/update (Cập nhật sản phẩm - ADMIN)
+  - GET /api/products/all (Lấy tất cả sản phẩm)
+  - GET /api/products/{id} (Lấy sản phẩm theo ID)
+  - DELETE /api/produHandling
+       - Receive image file từ request
+       - Validate file format (JPG, PNG only)
+       - Validate file size (max 5MB?)
+       - Save ảnh vào product-images/ folder
+       - Lưu image path vào database
+       - Xóa ảnh cũ khi update product
+       - Serve ảnh qua API endpoint
+
+  ☐ 4.2 SKU Management
+       - SKU phải unique và không trống
+       - Validate SKU format (e.g., không chứa special chars)
+       - Check SKU không bị duplicate
+
+  ☐ 4.3 Product Validation
+       - Name không trống
+       - Price > 0 (positive)
+       - Stock Quantity >= 0 (non-negative)
+       - Category tồn tại
+       - Category ID valid
+
+  ☐ 4.4 Search Functionality
+       - Tìm kiếm theo name, SKU
+       - Case-insensitive search
+       - Trả về tất cả sản phẩm match
+
+  ☐ 4.5 Stock Management
+       - Kiểm tra stock >= 0
+       - Stock được update tự động từ transaction
+       - Prevent overselling (stock negative)
+
+  ☐ 4.6 Authorization
+       - Chỉ ADMIN được tạo/update/delete product
+       - Public có thể view/search
+
+  ☐ 4.7 Product History
+       - Tracking giá thay đổi
+       - Tracking stock changes
+
+================================================================================
+MODULE 5: SUPPLIER MANAGEMENT
+================================================================================
+
+Người phụ trách: [CẦN PHÂN CÔNG]
+
+Endpoints:
+  - POST /api/suppliers/add (Thêm nhà cung cấp - ADMIN)
+  - GET /api/suppliers/all (Lấy tất cả nhà cung cấp)
+  - GET /api/suppliers/{id} (Lấy nhà cung cấp theo ID)
+  - PUT /api/suppliers/update/{id} (Cập nhật nhà cung cấp - ADMIN)
+  - DELETE /api/suppliers/delete/{id} (Xóa nhà cung cấp - ADMIN)
+
+VẤN ĐỀ CẦN GIẢI QUYẾT:
+  ☐ 5.1 Supplier Information
+       - Xác định tất cả các trường cần lưu
+       - Tên, contact person, email, phone, address
+       - Fields: id, name, contactPerson, email, phoneNumber, address
+       - Tất cả fields là required
+
+  ☐ 5.2 Validation
+       - Name không trống
+       - Email format hợp lệ (@)
+       - Email unique
+       - Phone format (10-11 ký tự)
+       - Address không trống
+
+  ☐ 5.3 CRUD Operations
+       - Create: kiểm tra email không duplicate
+       - Read: return supplier details
+       - Update: verify supplier tồn tại + email unique (except current)
+       - Delete: soft delete hay hard delete?
+
+  ☐ 5.4 Authorization
+       - Chỉ ADMIN được tạo/update/delete supplier
+       - Public có thể view
+
+  ☐ 5.5 Error Handling
+       - Return 400 nếu fields bắt buộc trống
+       - Return 409 nếu email đã tồn tại
+       - Return 404 nếu supplier không tồn tại===========================================
+MODULE 6: TRANSACTION MANAGEMENT
+================================================================================
+
+Người phụ trách: [CẦN PHÂN CÔNG]
+
+Endpoints:
+  - POST /api/transactions/purchase (Tạo giao dịch mua - ADMIN)
+  - POST /api/transactions/sell (Tạo giao dịch bán - USER)
+  - POST /api/transactions/return (Tạo giao dịch hoàn trả - USER)
+  - GET /api/transactions/all (Lấy tất cả giao dịch + phân trang)
+  - GET /api/transactions/{id} (Lấy giao dịch theo ID)
+  - GET /api/transactions/by-month-year (Lấy giao dịch theo tháng/năm)
+  - PUT /api/transactions/update/{transactionId} (Cập nhật trạng thái)
+
+VẤN ĐỀ CẦN GIẢI QUYẾT:
+  ☐ 6.1 Transaction Status Management
+       - Status: PENDING, COMPLETED, CANCELLED, FAILED
+       - Định nghĩa rõ workflow trạng thái
+       - Validation: chỉ cập nhật status nếu hợp lệ
+
+  ☐ 6.2 Stock UpdateTypes & Status
+       - Types: PURCHASE (mua), SELL (bán), RETURN (hoàn trả)
+       - Status: PENDING, COMPLETED, CANCELLED
+       - Define state transitions (PENDING -> COMPLETED -> CANCELLED?)
+
+  ☐ 6.2 Stock Update Logic (CRITICAL)
+       - PURCHASE: stock += quantity (add stock)
+       - SELL: stock -= quantity (reduce stock, check enough?)
+       - RETURN: stock += quantity (add stock back)
+       - Handle transaction rollback nếu stock update fail
+
+  ☐ 6.3 Validation & Business Rules
+       - Quantity > 0
+       - Product tồn tại
+       - Supplier tồn tại (cho PURCHASE/RETURN)
+       - Check stock >= quantity trước khi SELL
+       - Calculate totalPrice = quantity * price tại thời điểm transaction
+
+  ☐ 6.4 Transaction Creation
+       - Create transaction theo type (purchase/sell/return)
+       - Update stock tự động
+       - Set status = COMPLETED (hoặc PENDING?)
+       - Save transaction to database
+
+  ☐ 6.5 Filter & Pagination
+       - Pagination: page, size (supported)
+       - Filter by status, trạng thái (nếu có)
+       - Sort by date descending
+
+  ☐ 6.6 Get Transactions by Month/Year
+       - Query transactions trong tháng/năm cụ thể
+       - Filter TransactionType nếu cần
+
+  ☐ 6.7 Update Transaction Status
+       - Update status của transaction
+       - Validate state transition hợp lệ
+       - Log status changes
+Người phụ trách: [CẦN PHÂN CÔNG - Lea - CRITICAL)
+================================================================================
+
+Người phụ trách: [CẦN PHÂN CÔNG - Lead Backend]
+
+VẤN ĐỀ:
+  ☐ 0.1 Error Handling & Exception Management
+       - GlobalExceptionHandler đã tồn tại (cần review)
+       - Standardize Response format (status, message, data)
+       - HTTP Status codes: 200 (OK), 400 (Bad Request), 401 (Unauthorized), 
+         403 (Forbidden), 404 (Not Found), 409 (Conflict), 500 (Server Error)
+       - Add custom exceptions nếu cần
+
+  ☐ 0.2 Input Validation
+       - Use @Valid @NotBlank @Email @Positive @Min annotations
+       - Validate trên DTO level
+       - Return 400 với error message rõ ràng
+
+  ☐ 0.3 Response Format Consistency
+       - Tất cả endpoints return Response object
+       - Format: { status, message, data }
+       - Consistency across all endpoints
+
+  ☐ 0.4 Pagination & Filtering
+       - Implement proper pagination (page, size, totalPages, totalElements)
+       - Support filtering (status, date range, etc.)
+       - Default page=0, size=1000 (review giá trị này)
+
+  ☐ 0.5 Database Schema Review
+       - Review relationships between entities
+       - Ensure proper foreign keys
+       - Check cascade delete behavior
+       - Add indexes on frequently queried fields
+
+  ☐ 0.6 Testing
+       - Unit tests cho services
+       - Integration tests cho endpoints
+       - Test error scenarios (404, 400, 409, etc.)
+
+  ☐ 0.7 Logging
+       - Add SLF4J logging cho important operations
+       - Log errors với full stack trace
+       - Log user actions (create, update, delete)
+
+  ☐ 0.8 Security Issues
+       - CORS configuration (review CorsConfig.java)
+       - JWT token validation
+       - @PreAuthorize checks trên protected endpoints
+       - Password không được log/expose
+
+  ☐ 0.9 Database Transactions
+       - Use @Transactional for operations thay đổi stock
+       - Rollback nếu error
+       - Prevent concurrent updates (optimistic/pessimistic locking?)
+
+  ☐ 0.10 API Documentation
+       - Document required/optional fields
+       - Document error responses
+       - Provide example requests/responses
+================================================================================
+
+HIGH PRIORITY (CRITICAL):
+P0 - CRITICAL (Bắt buộc phải làm trước):
+  ✓ Transaction Stock Update Logic (Module 6.2) - CORE BUSINESS LOGIC
+  ✓ Error Handling & Exception (Cross-module 0.1)
+  ✓ Input Validation (Cross-module 0.2)
+  ✓ Authentication & JWT (Module 1.1-1.3)
+
+P1 - HIGH (Tuần 1):
+  ✓ Product Image Upload (Module 4.1)
+  ✓ Transaction Creation (Module 6.3-6.4)
+  ✓ User Profile Management (Module 2)
+  ✓ Category CRUD (Module 3)
+  ✓ Supplier CRUD (Module 5)
+
+P2 - MEDIUM (Tuần 2):
+  ✓ Transaction Pagination & Filter (Module 6.5)
+  ✓ Transaction Status Update (Module 6.7)
+  ✓ Database Transactions (Cross-module 0.9)
+  ✓ Response Format Consistency (Cross-module 0.3)
+
+P3 - LOW (Tuần 3):
+  ✓ Testing (Cross-module 0.6)
+  ✓ Logging & Monitoring (Cross-module 0.7)
+  ✓ Performance Optimization (Cross-module 0.4)
+  ✓ API Documentation (Cross-module 0.10
+================================================================================
+TEMPLATE PHÂN CÔNG
+================================================================================
+
+[Tên thành viên]: Module [X] - [Tên Module]
+Deadline: [Ngày]
+Responsibilities:
+  - [Vấn đề 1]
+  - [Vấn đề 2]
+  - [Vấn đề 3]
+Status: [Not Started / In Progress / Review / Done]
+
+Ví dụ:
+[Nguyễn A]: Module 1 - Authentication
+Deadline: 2026-03-15
+Responsibilities:
+  - Implement JWT token validation
+  - Setup password hashing
+CODING STANDARDS & BEST PRACTICES
+================================================================================
+
+1. Exception Handling
+   - Extend custom exceptions từ RuntimeException
+   - Use GlobalExceptionHandler cho consistent error response
+   - Return proper HTTP status codes
+
+2. Response Format
+   - All endpoints return Response object: { status, message, data }
+   - Success: status = 200, message = "success", data = object
+   - Error: status = code, message = error message, data = null
+
+3. Validation
+   - Use @Valid @NotBlank @Email @Positive @Min on DTO fields
+   - Return 400 Bad Request với clear error message
+   - Validate foreign keys (product, category, supplier tồn tại)
+
+4. Authorization
+   - Use @PreAuthorize("hasAuthority('ADMIN')") cho admin operations
+   - Check current user ownership trước khi update/delete profile
+   - Return 403 Forbidden nếu không có quyền
+
+5. Transactions
+   - Use @Transactional trên methods thay đổi stock
+   - Rollback automatic nếu exception
+   - NO manual transaction management
+
+6. DTOs
+   - Use ModelMapper để map giữa DTO <-> Entity
+   - Never expose password, sensitive data trong response DTO
+   - Use separate request/response DTOs nếu khác nhau
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+1. Review danh sách các vấn đề với team
+2. Xác định priority và schedule
+3. Assign module cho từng thành viên
+4. Setup database schema
+5. Thiết lập code review process
+6. Daily standup để track progress
+7. Test integration trước mergn
+4. ✓ Thiết lập deadline
+5. ✓ Tạo task tracking system (Jira, Trello, ...)
+6. ✓ Daily standup để track progress
+7. ✓ Code review before merge
+8. ✓ Integration testing trước release
+
+================================================================================

@@ -1,0 +1,231 @@
+================================================================================
+                    INVENTORY MANAGEMENT SYSTEM - API ENDPOINTS
+================================================================================
+
+Tổng cộng: 31 API Endpoints
+
+================================================================================
+1. AUTHENTICATION MODULE (/api/auth)
+================================================================================
+
+[1] POST /api/auth/register
+   - Authorization: Public
+   - Parameters: email, password, firstName, lastName, phoneNumber
+   - Description: Đăng ký tài khoản người dùng mới
+   
+[2] POST /api/auth/login
+   - Authorization: Public
+   - Parameters: email, password
+   - Description: Đăng nhập hệ thống
+
+
+================================================================================
+2. USER MODULE (/api/user)
+================================================================================
+
+[3] GET /api/user/all
+   - Authorization: ADMIN
+   - Parameters: None
+   - Description: Lấy danh sách tất cả người dùng
+   
+[4] GET /api/user/{id}
+   - Authorization: Public
+   - Parameters: id (path parameter)
+   - Description: Lấy thông tin người dùng theo ID
+   
+[5] PUT /api/user/update/{id}
+   - Authorization: Authenticated
+   - Parameters: id (path), user data (body)
+   - Description: Cập nhật thông tin người dùng
+   
+[6] DELETE /api/user/delete/{id}
+   - Authorization: ADMIN
+   - Parameters: id (path parameter)
+   - Description: Xóa người dùng
+   
+[7] GET /api/user/transaction/{userId}
+   - Authorization: Authenticated
+   - Parameters: userId (path parameter)
+   - Description: Lấy danh sách giao dịch của người dùng
+   
+[8] GET /api/user/current
+   - Authorization: Authenticated
+   - Parameters: None
+   - Description: Lấy thông tin người dùng đang đăng nhập
+
+
+================================================================================
+3. CATEGORY MODULE (/api/categories)
+================================================================================
+
+[9] POST /api/categories/add
+   - Authorization: ADMIN
+   - Parameters: name, description (body)
+   - Description: Tạo danh mục sản phẩm mới
+   
+[10] GET /api/categories/all
+   - Authorization: Public
+   - Parameters: None
+   - Description: Lấy danh sách tất cả danh mục
+   
+[11] GET /api/categories/{id}
+   - Authorization: Public
+   - Parameters: id (path parameter)
+   - Description: Lấy thông tin danh mục theo ID
+   
+[12] PUT /api/categories/{id}
+   - Authorization: Authenticated
+   - Parameters: id (path), categoryDTO (body)
+   - Description: Cập nhật thông tin danh mục
+   
+[13] DELETE /api/categories/delete/{id}
+   - Authorization: ADMIN
+   - Parameters: id (path parameter)
+   - Description: Xóa danh mục
+
+
+================================================================================
+4. PRODUCT MODULE (/api/products)
+================================================================================
+
+[14] POST /api/products/add
+   - Authorization: ADMIN
+   - Parameters: 
+     * imageFile (file upload)
+     * name (string)
+     * sku (string)
+     * price (BigDecimal)
+     * stockQuantity (integer)
+     * categoryId (long)
+     * description (string - tùy chọn)
+   - Description: Thêm sản phẩm mới
+   
+[15] PUT /api/products/update
+   - Authorization: ADMIN
+   - Parameters:
+     * productId (required)
+     * name (tùy chọn)
+     * sku (tùy chọn)
+     * price (tùy chọn)
+     * stockQuantity (tùy chọn)
+     * categoryId (tùy chọn)
+     * description (tùy chọn)
+     * imageFile (tùy chọn - file upload)
+   - Description: Cập nhật thông tin sản phẩm
+   
+[16] GET /api/products/all
+   - Authorization: Public
+   - Parameters: None
+   - Description: Lấy danh sách tất cả sản phẩm
+   
+[17] GET /api/products/{id}
+   - Authorization: Public
+   - Parameters: id (path parameter)
+   - Description: Lấy thông tin sản phẩm theo ID
+   
+[18] DELETE /api/products/delete/{id}
+   - Authorization: Authenticated
+   - Parameters: id (path parameter)
+   - Description: Xóa sản phẩm
+   
+[19] GET /api/products/search
+   - Authorization: Public
+   - Parameters: input (query parameter - tìm kiếm)
+   - Description: Tìm kiếm sản phẩm
+
+
+================================================================================
+5. SUPPLIER MODULE (/api/suppliers)
+================================================================================
+
+[20] POST /api/suppliers/add
+   - Authorization: ADMIN
+   - Parameters: name, contactPerson, email, phoneNumber, address (body)
+   - Description: Thêm nhà cung cấp mới
+   
+[21] GET /api/suppliers/all
+   - Authorization: Public
+   - Parameters: None
+   - Description: Lấy danh sách tất cả nhà cung cấp
+   
+[22] GET /api/suppliers/{id}
+   - Authorization: Public
+   - Parameters: id (path parameter)
+   - Description: Lấy thông tin nhà cung cấp theo ID
+   
+[23] PUT /api/suppliers/update/{id}
+   - Authorization: ADMIN
+   - Parameters: id (path), supplierDTO (body)
+   - Description: Cập nhật thông tin nhà cung cấp
+   
+[24] DELETE /api/suppliers/delete/{id}
+   - Authorization: ADMIN
+   - Parameters: id (path parameter)
+   - Description: Xóa nhà cung cấp
+
+
+================================================================================
+6. TRANSACTION MODULE (/api/transactions)
+================================================================================
+
+[25] POST /api/transactions/purchase
+   - Authorization: Authenticated
+   - Parameters: productId, quantity, supplierId (body)
+   - Description: Tạo giao dịch mua hàng từ nhà cung cấp
+   
+[26] POST /api/transactions/sell
+   - Authorization: Authenticated
+   - Parameters: productId, quantity (body)
+   - Description: Tạo giao dịch bán hàng
+   
+[27] POST /api/transactions/return
+   - Authorization: Authenticated
+   - Parameters: productId, quantity, supplierId (body)
+   - Description: Tạo giao dịch hoàn trả hàng cho nhà cung cấp
+   
+[28] GET /api/transactions/all
+   - Authorization: Authenticated
+   - Parameters:
+     * page (query - mặc định: 0)
+     * size (query - mặc định: 1000)
+     * filter (query - tùy chọn)
+   - Description: Lấy danh sách tất cả giao dịch (có hỗ trợ phân trang)
+   
+[29] GET /api/transactions/{id}
+   - Authorization: Authenticated
+   - Parameters: id (path parameter)
+   - Description: Lấy thông tin giao dịch theo ID
+   
+[30] GET /api/transactions/by-month-year
+   - Authorization: Authenticated
+   - Parameters: 
+     * month (query - required)
+     * year (query - required)
+   - Description: Lấy giao dịch theo tháng và năm
+   
+[31] PUT /api/transactions/update/{transactionId}
+   - Authorization: Authenticated
+   - Parameters: transactionId (path), status (body)
+   - Description: Cập nhật trạng thái giao dịch
+
+
+================================================================================
+AUTHORIZATION LEVELS
+================================================================================
+
+1. Public - Không cần xác thực
+2. Authenticated - Cần đăng nhập
+3. ADMIN - Chỉ người dùng có quyền ADMIN
+
+
+================================================================================
+NOTES / GHI CHÚ
+================================================================================
+
+- Các endpoints được tổ chức thành 6 module chính
+- Hệ thống sử dụng JWT Token cho xác thực
+- Hầu hết các endpoints return Response object
+- Sản phẩm hỗ trợ upload hình ảnh
+- Giao dịch hỗ trợ 3 loại: purchase (mua), sell (bán), return (hoàn trả)
+
+================================================================================
