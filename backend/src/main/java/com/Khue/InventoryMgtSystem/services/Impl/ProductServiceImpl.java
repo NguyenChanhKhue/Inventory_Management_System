@@ -9,15 +9,18 @@ import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.Khue.InventoryMgtSystem.dto.ProductDTO;
 import com.Khue.InventoryMgtSystem.dto.Response;
+import com.Khue.InventoryMgtSystem.exceptions.NameValueRequiredException;
 import com.Khue.InventoryMgtSystem.exceptions.NotFoundException;
 import com.Khue.InventoryMgtSystem.models.Category;
 import com.Khue.InventoryMgtSystem.models.Product;
 import com.Khue.InventoryMgtSystem.repository.CategoryRepository;
 import com.Khue.InventoryMgtSystem.repository.ProductRepository;
+import com.Khue.InventoryMgtSystem.repository.TransactionRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +35,8 @@ public class ProductServiceImpl implements ProductService {
   private final ModelMapper modelMapper;
 
   private final CategoryRepository categoryRepository;
+
+  private final TransactionRepository transactionRepository;
 
   private static final String IMAGE_DIRECTORY = System.getProperty("user.dir") + "/product-images";
 
@@ -147,10 +152,21 @@ public class ProductServiceImpl implements ProductService {
 
   @Override
   public Response deleteProduct(Long id) {
-    productRepository.findById(id)
+    Product product = productRepository.findById(id)
         .orElseThrow(() -> new NotFoundException("Product Not Found"));
 
-    productRepository.deleteById(id);
+    if (transactionRepository.existsByProduct_Id(id)) {
+      throw new NameValueRequiredException(
+          "Cannot delete this product because it is already used in transactions");
+    }
+
+    try {
+      productRepository.delete(product);
+      productRepository.flush();
+    } catch (DataIntegrityViolationException ex) {
+      throw new NameValueRequiredException(
+          "Cannot delete this product because it is already used in transactions");
+    }
 
     return Response.builder()
         .status(200)

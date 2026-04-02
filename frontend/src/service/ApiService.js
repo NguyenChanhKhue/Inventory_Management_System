@@ -166,7 +166,7 @@ export default class ApiService {
 
   static async searchProduct(searchValue) {
     const response = await axios.get(`${this.BASE_URL}/products/search`, {
-      params: { searchValue },
+      params: { input: searchValue },
       headers: this.getHeader(),
     });
     return response.data;

@@ -7,6 +7,8 @@ import PaginationComponent from "../components/PaginationComponents";
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
   const [message, setMessage] = useState("");
+  const [filter, setFilter] = useState("");
+  const [valueToSearch, setValueToSearch] = useState("");
 
   const navigate = useNavigate();
 
@@ -18,13 +20,17 @@ const ProductPage = () => {
   useEffect(() => {
     const getProducts = async () => {
       try {
-        const productData = await ApiService.getAllProducts();
+        const productData = valueToSearch
+          ? await ApiService.searchProduct(valueToSearch)
+          : await ApiService.getAllProducts();
 
         if (productData.status === 200) {
-          setTotalPages(Math.ceil(productData.products.length / itemsPerPage));
+          const fetchedProducts = productData.products || [];
+
+          setTotalPages(Math.ceil(fetchedProducts.length / itemsPerPage));
 
           setProducts(
-            productData.products.slice(
+            fetchedProducts.slice(
               (currentPage - 1) * itemsPerPage,
               currentPage * itemsPerPage,
             ),
@@ -38,7 +44,7 @@ const ProductPage = () => {
     };
 
     getProducts();
-  }, [currentPage]);
+  }, [currentPage, valueToSearch]);
 
   //Delete a product
   const handleDeleteProduct = async (productId) => {
@@ -64,6 +70,11 @@ const ProductPage = () => {
     }, 4000);
   };
 
+  const handleSearch = () => {
+    setCurrentPage(1);
+    setValueToSearch(filter.trim());
+  };
+
   return (
     <Layout>
       {message && <div className="message">{message}</div>}
@@ -71,12 +82,26 @@ const ProductPage = () => {
       <div className="product-page">
         <div className="product-header">
           <h1>Products</h1>
-          <button
-            className="add-product-btn"
-            onClick={() => navigate("/add-product")}
-          >
-            Add Product
-          </button>
+          <div className="product-header-actions">
+            <div className="product-search">
+              <input
+                type="text"
+                placeholder="Search product ..."
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+              />
+              <button type="button" onClick={handleSearch}>
+                Search
+              </button>
+            </div>
+
+            <button
+              className="add-product-btn"
+              onClick={() => navigate("/add-product")}
+            >
+              Add Product
+            </button>
+          </div>
         </div>
 
         {products && (

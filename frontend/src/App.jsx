@@ -9,9 +9,12 @@ import AddEditSupplierPage from "./pages/AddEditingSupplierPage.jsx";
 import ProductPage from "./pages/ProductPage.jsx";
 import AddEditProductPage from "./pages/AddEditProductPage.jsx";
 import PurchasePage from "./pages/PurchasePage.jsx";
+import ReturnPage from "./pages/ReturnPage.jsx";
 import SellPage from "./pages/SellPage.jsx";
 import TransactionsPage from "./pages/TransactionPage.jsx";
 import TransactionDetailsPage from "./pages/TransactionDetailPage.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
+import DashboardPage from "./pages/DashboardPage.jsx";
 function App() {
   return (
     <Router>
@@ -60,6 +63,10 @@ function App() {
           element={<ProtectedRoute element={<SellPage />} />}
         />
         <Route
+          path="/return"
+          element={<ProtectedRoute element={<ReturnPage />} />}
+        />
+        <Route
           path="/transaction"
           element={<ProtectedRoute element={<TransactionsPage />} />}
         />
@@ -67,6 +74,16 @@ function App() {
           path="/transaction/:transactionId"
           element={<ProtectedRoute element={<TransactionDetailsPage />} />}
         />
+        <Route
+          path="/profile"
+          element={<ProtectedRoute element={<ProfilePage />} />}
+        />
+        <Route
+          path="/dashboard"
+          element={<ProtectedRoute element={<DashboardPage />} />}
+        />
+
+        <Route path="*" element={<LoginPage />} />
       </Routes>
     </Router>
   );

@@ -135,11 +135,19 @@ public class TransactionServiceImpl implements TransactionService {
     if (supplierId == null)
       throw new NameValueRequiredException("Supplier Id is Required");
 
+    if (quantity == null || quantity <= 0) {
+      throw new NameValueRequiredException("Quantity must be greater than 0");
+    }
+
     Product product = productRepository.findById(productId)
         .orElseThrow(() -> new NotFoundException("Product Not Found"));
 
     Supplier supplier = supplierRepository.findById(supplierId)
         .orElseThrow(() -> new NotFoundException("Supplier Not Found"));
+
+    if (quantity > product.getStockQuantity()) {
+      throw new NameValueRequiredException("Insufficient stock quantity for return");
+    }
 
     User user = userService.getCurrentLoggedInUser();
 
@@ -153,6 +161,7 @@ public class TransactionServiceImpl implements TransactionService {
         .transactionStatus(TransactionStatus.PROCESSING)
         .product(product)
         .user(user)
+        .supplier(supplier)
         .totalProduct(quantity)
         .totalPrice(BigDecimal.ZERO)
         .description(transactionRequest.getDescription())
