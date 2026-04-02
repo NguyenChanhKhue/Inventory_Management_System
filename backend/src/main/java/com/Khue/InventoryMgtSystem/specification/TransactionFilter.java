@@ -42,12 +42,14 @@ public class TransactionFilter {
             List<Predicate> predicates = new ArrayList<>();
 
             // search within transaction fields
-            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), searchvalue));
-            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("note")), searchvalue));
-            predicates
-                    .add(criteriaBuilder.like(criteriaBuilder.lower(root.get("status").as(String.class)), searchvalue));
-            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("transactiontype").as(String.class)),
-                    searchvalue));
+            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), searchPattern));
+            predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("note")), searchPattern));
+            predicates.add(
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("transactionStatus").as(String.class)),
+                            searchPattern));
+            predicates.add(
+                    criteriaBuilder.like(criteriaBuilder.lower(root.get("transactionType").as(String.class)),
+                            searchPattern));
 
             // Safely join and check user fields using LEFT JOIN
             if (root.getJoins().stream().noneMatch(j -> j.getAttribute().getName().equals("user"))) {

@@ -6,6 +6,12 @@ import LoginPage from "./pages/Loginpage.jsx";
 import CategoryPage from "./pages/CategoryPage.jsx";
 import SupplierPage from "./pages/SupplierPage.jsx";
 import AddEditSupplierPage from "./pages/AddEditingSupplierPage.jsx";
+import ProductPage from "./pages/ProductPage.jsx";
+import AddEditProductPage from "./pages/AddEditProductPage.jsx";
+import PurchasePage from "./pages/PurchasePage.jsx";
+import SellPage from "./pages/SellPage.jsx";
+import TransactionsPage from "./pages/TransactionPage.jsx";
+import TransactionDetailsPage from "./pages/TransactionDetailPage.jsx";
 function App() {
   return (
     <Router>
@@ -29,6 +35,37 @@ function App() {
         <Route
           path="/edit-supplier/:supplierId"
           element={<AdminRoute element={<AddEditSupplierPage />} />}
+        />
+
+        <Route
+          path="/add-product"
+          element={<AdminRoute element={<AddEditProductPage />} />}
+        />
+        <Route
+          path="/product"
+          element={<AdminRoute element={<ProductPage />} />}
+        />
+        <Route
+          path="/edit-product/:productId"
+          element={<AdminRoute element={<AddEditProductPage />} />}
+        />
+
+        {/* ADMIN AND MANAGERS ROUTES */}
+        <Route
+          path="/purchase"
+          element={<ProtectedRoute element={<PurchasePage />} />}
+        />
+        <Route
+          path="/sell"
+          element={<ProtectedRoute element={<SellPage />} />}
+        />
+        <Route
+          path="/transaction"
+          element={<ProtectedRoute element={<TransactionsPage />} />}
+        />
+        <Route
+          path="/transaction/:transactionId"
+          element={<ProtectedRoute element={<TransactionDetailsPage />} />}
         />
       </Routes>
     </Router>
