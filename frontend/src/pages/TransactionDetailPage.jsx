@@ -19,7 +19,7 @@ const TransactionDetailsPage = () => {
 
         if (transactionData.status === 200) {
           setTransaction(transactionData.transaction);
-          setStatus(transactionData.transaction.status);
+          setStatus(transactionData.transaction.transactionStatus);
         }
       } catch (error) {
         showMessage(
@@ -35,7 +35,7 @@ const TransactionDetailsPage = () => {
   //update transaction status
   const handleUpdateStatus = async () => {
     try {
-      ApiService.updateTransactionStatus(transactionId, status);
+      await ApiService.updateTransactionStatus(transactionId, status);
       navigate("/transaction");
     } catch (error) {
       showMessage(

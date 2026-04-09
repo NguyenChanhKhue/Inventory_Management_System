@@ -86,7 +86,10 @@ export default class ApiService {
   }
 
   static async verifyPasswordResetOtp(payload) {
-    const response = await axios.post(`${this.BASE_URL}/auth/verify-otp`, payload);
+    const response = await axios.post(
+      `${this.BASE_URL}/auth/verify-otp`,
+      payload,
+    );
     return response.data;
   }
 
@@ -370,8 +373,8 @@ export default class ApiService {
 
   static async updateTransactionStatus(transactionId, status) {
     const response = await axios.put(
-      `${this.BASE_URL}/transactions/${transactionId}`,
-      status,
+      `${this.BASE_URL}/transactions/update/${transactionId}`,
+      JSON.stringify(status),
       {
         headers: this.getHeader(),
       },
