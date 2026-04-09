@@ -78,6 +78,26 @@ export default class ApiService {
     return response.data;
   }
 
+  static async forgotPassword(email) {
+    const response = await axios.post(`${this.BASE_URL}/auth/forgot-password`, {
+      email,
+    });
+    return response.data;
+  }
+
+  static async verifyPasswordResetOtp(payload) {
+    const response = await axios.post(`${this.BASE_URL}/auth/verify-otp`, payload);
+    return response.data;
+  }
+
+  static async resetPassword(resetData) {
+    const response = await axios.post(
+      `${this.BASE_URL}/auth/reset-password`,
+      resetData,
+    );
+    return response.data;
+  }
+
   static async getAllUser() {
     const response = await axios.get(`${this.BASE_URL}/user/all`, {
       headers: this.getHeader(),

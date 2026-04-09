@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import ApiService from "../service/ApiService";
 
 const LoginPage = () => {
@@ -63,6 +63,9 @@ const LoginPage = () => {
 
         <button type="submit">Login</button>
       </form>
+      <p className="auth-helper-text">
+        <Link to="/forgot-password">Forgot password?</Link>
+      </p>
       <p>
         Don't have an account? <a href="/register">Register</a>
       </p>

@@ -3,6 +3,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import RegisterPage from "./pages/RegisterPage";
 import { ProtectedRoute, AdminRoute } from "./service/Guard.jsx";
 import LoginPage from "./pages/Loginpage.jsx";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage.jsx";
+import VerifyOtpPage from "./pages/VerifyOtpPage.jsx";
+import ResetPasswordPage from "./pages/ResetPasswordPage.jsx";
 import CategoryPage from "./pages/CategoryPage.jsx";
 import SupplierPage from "./pages/SupplierPage.jsx";
 import AddEditSupplierPage from "./pages/AddEditingSupplierPage.jsx";
@@ -21,6 +24,9 @@ function App() {
       <Routes>
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/verify-otp" element={<VerifyOtpPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         {/* ADMIN ROUTE */}
         <Route

@@ -21,6 +21,9 @@ public class Response {
   private String token;
   private String role;
   private String expirationTime;
+  private Boolean emailExists;
+  private Boolean otpVerified;
+  private String resetToken;
 
   //Pagination
   private int totalPages;
