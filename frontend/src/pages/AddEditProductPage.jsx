@@ -186,7 +186,11 @@ const AddEditProductPage = () => {
             <input type="file" onChange={handleImageChange} />
 
             {imageUrl && (
-              <img src={imageUrl} alt="preview" className="image-preview" />
+              <img
+                src={ApiService.resolveAssetUrl(imageUrl)}
+                alt="preview"
+                className="image-preview"
+              />
             )}
           </div>
           <button type="submit">

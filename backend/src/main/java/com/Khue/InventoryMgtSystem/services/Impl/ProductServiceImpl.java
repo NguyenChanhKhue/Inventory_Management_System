@@ -7,9 +7,10 @@ import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.Khue.InventoryMgtSystem.dto.ProductDTO;
@@ -38,16 +39,14 @@ public class ProductServiceImpl implements ProductService {
 
   private final TransactionRepository transactionRepository;
 
-  private static final String IMAGE_DIRECTORY = System.getProperty("user.dir") + "/product-images";
-
-  private static final String IMAGE_DIRECTORY_2 = "C:\\Users\\Admin\\Desktop\\Inventory_Management_System\\frontend\\public\\products\\";
+  @Value("${app.product-images-dir:./product-images}")
+  private String productImagesDir;
 
   @Override
   public Response saveProduct(ProductDTO productDTO, MultipartFile imageFile) {
     Category category = categoryRepository.findById(productDTO.getCategoryId())
         .orElseThrow(() -> new NotFoundException("Category Not Found"));
 
-    // map DTO -> product entity
     Product productToSave = Product.builder()
         .name(productDTO.getName())
         .sku(productDTO.getSku())
@@ -56,16 +55,11 @@ public class ProductServiceImpl implements ProductService {
         .description(productDTO.getDescription())
         .category(category)
         .build();
+
     if (imageFile != null && !imageFile.isEmpty()) {
-      log.info("Image file exist");
-
-      // String imagePath = saveImage(imageFile); use this when you havent FE
-      String imagePath = saveImage2(imageFile);
-
-      productToSave.setImgUrl(imagePath); // lưu đường dẫn vào DB
+      productToSave.setImgUrl(saveImage(imageFile));
     }
 
-    // Lưu
     productRepository.save(productToSave);
 
     return Response.builder()
@@ -76,20 +70,13 @@ public class ProductServiceImpl implements ProductService {
 
   @Override
   public Response updateProduct(ProductDTO productDTO, MultipartFile imageFile) {
-
     Product existingProduct = productRepository.findById(productDTO.getProductId())
         .orElseThrow(() -> new NotFoundException("Product Not Found"));
 
-    // Check xem có file ảnh mới cập nhật không
     if (imageFile != null && !imageFile.isEmpty()) {
-
-      // String imagePath = saveImage(imageFile);  use this when you haven't FE
-      String imagePath = saveImage2(imageFile);
-      existingProduct.setImgUrl(imagePath); // update Image URL
-
+      existingProduct.setImgUrl(saveImage(imageFile));
     }
 
-    // check Category , nếu có category mới gửi lên thì cập nhật lại cho Product
     if (productDTO.getCategoryId() != null && productDTO.getCategoryId() > 0) {
       Category category = categoryRepository.findById(productDTO.getCategoryId())
           .orElseThrow(() -> new NotFoundException("Category Not Found"));
@@ -178,78 +165,41 @@ public class ProductServiceImpl implements ProductService {
   public Response searchProduct(String input) {
     List<Product> products = productRepository.findByNameContainingOrDescriptionContaining(input, input);
 
-        if (products.isEmpty()) {
-            throw new NotFoundException("Product Not Found");
-        }
+    if (products.isEmpty()) {
+      throw new NotFoundException("Product Not Found");
+    }
 
-        List<ProductDTO> productDTOList = modelMapper.map(products, new TypeToken<List<ProductDTO>>() {
-        }.getType());
+    List<ProductDTO> productDTOList = modelMapper.map(products, new TypeToken<List<ProductDTO>>() {
+    }.getType());
 
-        return Response.builder()
-                .status(200)
-                .message("success")
-                .products(productDTOList)
-                .build();
+    return Response.builder()
+        .status(200)
+        .message("success")
+        .products(productDTOList)
+        .build();
   }
 
   private String saveImage(MultipartFile imageFile) {
-    // check xem có phải là file ảnh không? , và < 1 GB
-    if (!imageFile.getContentType().startsWith("image/") || imageFile.getSize() > 1024 * 1024 * 1024) {
+    String contentType = imageFile.getContentType();
+    if (contentType == null || !contentType.startsWith("image/") || imageFile.getSize() > 1024 * 1024 * 1024) {
       throw new IllegalArgumentException("Only image files under 1 GB is allowed");
     }
 
-    // Tạo folder nếu chưa có
-    File directory = new File(IMAGE_DIRECTORY);
-
-    if (!directory.exists()) {
-      directory.mkdir(); // tao folder
-      log.info("Directory was created");
+    File directory = new File(productImagesDir);
+    if (!directory.exists() && !directory.mkdirs()) {
+      throw new IllegalArgumentException("Error creating image directory");
     }
 
-    // Tạo file name không trùng tên cho ảnh
     String uniqueFileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
-
-    // Lấy đường dẫn sau cùng của hình ảnh
-    String imagePath = IMAGE_DIRECTORY + uniqueFileName;
+    File destinationFile = new File(directory, uniqueFileName);
 
     try {
-      File destinationFile = new File(imagePath);
-      imageFile.transferTo(destinationFile); // chuyển nội dung file upload vào file đích, được save trên server
+      imageFile.transferTo(destinationFile);
     } catch (Exception e) {
       throw new IllegalArgumentException("Error Saving Image " + e.getMessage());
     }
-    return imagePath;
-  }
 
-  // After create frontend , use path publics to contains pic from from FE
-  private String saveImage2(MultipartFile imageFile) {
-    // check xem có phải là file ảnh không? , và < 1 GB
-    if (!imageFile.getContentType().startsWith("image/") || imageFile.getSize() > 1024 * 1024 * 1024) {
-      throw new IllegalArgumentException("Only image files under 1 GB is allowed");
-    }
-
-    // Tạo folder nếu chưa có
-    File directory = new File(IMAGE_DIRECTORY_2);
-
-    if (!directory.exists()) {
-      directory.mkdir(); // tao folder
-      log.info("Directory was created");
-    }
-
-    // Tạo file name không trùng tên cho ảnh
-    String uniqueFileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
-
-    // Lấy đường dẫn sau cùng của hình ảnh
-    String imagePath = IMAGE_DIRECTORY_2 + uniqueFileName;
-
-    try {
-      File destinationFile = new File(imagePath);
-      imageFile.transferTo(destinationFile); // chuyển nội dung file upload vào file đích, được save trên server
-    } catch (Exception e) {
-      throw new IllegalArgumentException("Error Saving Image " + e.getMessage());
-    }
+    log.info("Saved product image to {}", destinationFile.getAbsolutePath());
     return "products/" + uniqueFileName;
   }
-
-
 }

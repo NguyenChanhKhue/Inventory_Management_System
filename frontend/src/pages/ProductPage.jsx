@@ -110,7 +110,7 @@ const ProductPage = () => {
               <div key={product.id} className="product-item">
                 <img
                   className="product-image"
-                  src={product.imgUrl}
+                  src={ApiService.resolveAssetUrl(product.imgUrl)}
                   alt={product.name}
                 />
 

@@ -90,7 +90,7 @@ const TransactionDetailsPage = () => {
 
               {transaction.product.imgUrl && (
                 <img
-                  src={`/${transaction.product.imgUrl}`}
+                  src={ApiService.resolveAssetUrl(transaction.product.imgUrl)}
                   alt={transaction.product.name}
                 />
               )}

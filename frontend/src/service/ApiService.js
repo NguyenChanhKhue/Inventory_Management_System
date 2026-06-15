@@ -3,8 +3,20 @@ import axios from "axios";
 import CryptoJS from "crypto-js";
 
 export default class ApiService {
-  static BASE_URL = "http://localhost:5050/api";
+  static BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
   static ENCRYPTION_KEY = "chanhkhue-inventory";
+
+  static resolveAssetUrl(path) {
+    if (!path) return "";
+    if (
+      path.startsWith("http://") ||
+      path.startsWith("https://") ||
+      path.startsWith("data:")
+    ) {
+      return path;
+    }
+    return path.startsWith("/") ? path : `/${path}`;
+  }
 
   // encrypt data using cryptoJs
   static encrypt(data) {
