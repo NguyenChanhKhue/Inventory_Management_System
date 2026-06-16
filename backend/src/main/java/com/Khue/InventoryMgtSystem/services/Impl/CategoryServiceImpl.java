@@ -27,7 +27,14 @@ public class CategoryServiceImpl implements CategoryService {
 
 	@Override
 	public Response createCategory(CategoryDTO categoryDTO) {
-		Category categoryToSave = modelMapper.map(categoryDTO, Category.class);
+		Category categoryToSave = new Category();
+		categoryToSave.setName(categoryDTO.getName());
+
+		if (categoryDTO.getParentId() != null) {
+			Category parent = categoryRepository.findById(categoryDTO.getParentId())
+					.orElseThrow(() -> new NotFoundException("Parent Category Not Found"));
+			categoryToSave.setParent(parent);
+		}
 
 		categoryRepository.save(categoryToSave);
 
@@ -45,6 +52,13 @@ public class CategoryServiceImpl implements CategoryService {
 
 		List<CategoryDTO> categoryDTOs = modelMapper.map(categories, new TypeToken<List<CategoryDTO>>() {
 		}.getType());
+		
+		for (int i = 0; i < categories.size(); i++) {
+			if (categories.get(i).getParent() != null) {
+				categoryDTOs.get(i).setParentId(categories.get(i).getParent().getId());
+				categoryDTOs.get(i).setParentName(categories.get(i).getParent().getName());
+			}
+		}
 
 		return Response.builder()
 				.status(200)
@@ -58,6 +72,10 @@ public class CategoryServiceImpl implements CategoryService {
 		Category category = categoryRepository.findById(id).orElseThrow(() -> new NotFoundException("Category Not Found"));
 
 		CategoryDTO categoryDTO = modelMapper.map(category, CategoryDTO.class);
+		if (category.getParent() != null) {
+			categoryDTO.setParentId(category.getParent().getId());
+			categoryDTO.setParentName(category.getParent().getName());
+		}
 
 		return Response.builder()
 				.status(200)
@@ -73,6 +91,13 @@ public class CategoryServiceImpl implements CategoryService {
 				.orElseThrow(() -> new NotFoundException("Category Not Found"));
 
 		if(categoryDTO.getName() != null) existingCategory.setName(categoryDTO.getName());
+		
+		if (categoryDTO.getParentId() != null) {
+			Category parent = categoryRepository.findById(categoryDTO.getParentId())
+					.orElseThrow(() -> new NotFoundException("Parent Category Not Found"));
+			existingCategory.setParent(parent);
+		}
+		
 		categoryRepository.save(existingCategory);
 
 		return Response.builder()

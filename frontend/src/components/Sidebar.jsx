@@ -32,9 +32,21 @@ const Sidebar = () => {
           </li>
         )}
 
-        {isAdmin && (
+        {isAuth && (
           <li>
             <Link to="/product">Sản phẩm</Link>
+          </li>
+        )}
+
+        {isAuth && (
+          <li>
+            <Link to="/inventory">Tồn kho</Link>
+          </li>
+        )}
+
+        {isAuth && (
+          <li>
+            <Link to="/warehouse-map">Sơ đồ kho</Link>
           </li>
         )}
 

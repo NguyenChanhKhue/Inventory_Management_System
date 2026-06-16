@@ -18,6 +18,9 @@ import TransactionsPage from "./pages/TransactionPage.jsx";
 import TransactionDetailsPage from "./pages/TransactionDetailPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import DashboardPage from "./pages/DashboardPage.jsx";
+import InventoryPage from "./pages/InventoryPage.jsx";
+import WarehouseMapPage from "./pages/WarehouseMapPage.jsx";
+
 function App() {
   return (
     <Router>
@@ -50,10 +53,8 @@ function App() {
           path="/add-product"
           element={<AdminRoute element={<AddEditProductPage />} />}
         />
-        <Route
-          path="/product"
-          element={<AdminRoute element={<ProductPage />} />}
-        />
+        {/* Sản phẩm chuyển xuống dưới cho Manager xem */}
+
         <Route
           path="/edit-product/:productId"
           element={<AdminRoute element={<AddEditProductPage />} />}
@@ -87,6 +88,18 @@ function App() {
         <Route
           path="/dashboard"
           element={<ProtectedRoute element={<DashboardPage />} />}
+        />
+        <Route
+          path="/inventory"
+          element={<ProtectedRoute element={<InventoryPage />} />}
+        />
+        <Route
+          path="/product"
+          element={<ProtectedRoute element={<ProductPage />} />}
+        />
+        <Route
+          path="/warehouse-map"
+          element={<ProtectedRoute element={<WarehouseMapPage />} />}
         />
 
         <Route path="*" element={<LoginPage />} />

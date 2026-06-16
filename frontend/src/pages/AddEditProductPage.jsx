@@ -8,9 +8,13 @@ const AddEditProductPage = () => {
   const [name, setName] = useState("");
   const [sku, setSku] = useState("");
   const [price, setPrice] = useState("");
-  const [stockQuantity, setStokeQuantity] = useState("");
+  const [stockQuantity, setStokeQuantity] = useState(0);
   const [categoryId, setCategoryId] = useState("");
   const [description, setDescription] = useState("");
+  const [importPrice, setImportPrice] = useState("");
+  const [unit, setUnit] = useState("");
+  const [location, setLocation] = useState("");
+  const [minStock, setMinStock] = useState(0);
   const [imageFile, setImageFile] = useState(null);
   const [imageUrl, setImageUrl] = useState("");
   const [isEditing, setIsEditing] = useState(false);
@@ -44,6 +48,10 @@ const AddEditProductPage = () => {
             setStokeQuantity(productData.product.stockQuantity);
             setCategoryId(productData.product.categoryId);
             setDescription(productData.product.description);
+            setImportPrice(productData.product.importPrice || "");
+            setUnit(productData.product.unit || "");
+            setLocation(productData.product.location || "");
+            setMinStock(productData.product.minStock || 0);
             setImageUrl(productData.product.imgUrl);
           } else {
             showMessage(productData.message);
@@ -80,19 +88,33 @@ const AddEditProductPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append("name", name);
-    formData.append("sku", sku);
-    formData.append("price", price);
-    formData.append("stockQuantity", stockQuantity);
-    formData.append("categoryId", categoryId);
-    formData.append("description", description);
+
+    // Gom tất cả data thành 1 JSON string → chỉ 2 parts thay vì 11
+    const productPayload = {
+      name,
+      sku,
+      price: price !== "" ? Number(price) : null,
+      stockQuantity: stockQuantity !== "" ? Number(stockQuantity) : 0,
+      categoryId: categoryId !== "" ? Number(categoryId) : null,
+      description,
+      importPrice: importPrice !== "" ? Number(importPrice) : null,
+      unit,
+      location,
+      minStock: minStock !== "" ? Number(minStock) : 0,
+    };
+
+    if (isEditing) {
+      productPayload.productId = Number(productId);
+    }
+
+    formData.append("productData", JSON.stringify(productPayload));
+
     if (imageFile) {
       formData.append("imageFile", imageFile);
     }
 
     try {
       if (isEditing) {
-        formData.append("productId", productId);
         await ApiService.updateProduct(formData);
         showMessage("Cập nhật sản phẩm thành công");
       } else {
@@ -106,6 +128,7 @@ const AddEditProductPage = () => {
       );
     }
   };
+
 
   return (
     <Layout>
@@ -134,22 +157,55 @@ const AddEditProductPage = () => {
             />
           </div>
 
+
+
           <div className="form-group">
-            <label>Số lượng kho</label>
+            <label>Giá nhập (VNĐ)</label>
             <input
               type="number"
-              value={stockQuantity}
-              onChange={(e) => setStokeQuantity(e.target.value)}
+              value={importPrice}
+              onChange={(e) => setImportPrice(e.target.value)}
               required
             />
           </div>
 
           <div className="form-group">
-            <label>Giá bán</label>
+            <label>Giá bán (VNĐ)</label>
             <input
               type="number"
               value={price}
               onChange={(e) => setPrice(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Đơn vị tính</label>
+            <input
+              type="text"
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
+              placeholder="Thùng, Hộp, Cái..."
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Vị trí kho</label>
+            <input
+              type="text"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              placeholder="Kệ A - Tầng 2"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Cảnh báo tồn kho tối thiểu</label>
+            <input
+              type="number"
+              value={minStock}
+              onChange={(e) => setMinStock(e.target.value)}
               required
             />
           </div>

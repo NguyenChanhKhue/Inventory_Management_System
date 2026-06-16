@@ -158,29 +158,23 @@ export default class ApiService {
   /*PRODUCT ENPOINT*/
 
   static async addProduct(formData) {
+    const headers = this.getHeader();
+    delete headers["Content-Type"]; // Let Axios set multipart/form-data with the correct boundary
     const response = await axios.post(
       `${this.BASE_URL}/products/add`,
       formData,
-      {
-        headers: {
-          ...this.getHeader(),
-          "Content-Type": " multipart/form-data ",
-        },
-      },
+      { headers }
     );
     return response.data;
   }
 
   static async updateProduct(formData) {
+    const headers = this.getHeader();
+    delete headers["Content-Type"];
     const response = await axios.put(
       `${this.BASE_URL}/products/update`,
       formData,
-      {
-        headers: {
-          ...this.getHeader(),
-          "Content-Type": "multipart/form-data",
-        },
-      },
+      { headers }
     );
     return response.data;
   }
@@ -343,6 +337,17 @@ export default class ApiService {
   static async returnToSupplier(body) {
     const response = await axios.post(
       `${this.BASE_URL}/transactions/return`,
+      body,
+      {
+        headers: this.getHeader(),
+      },
+    );
+    return response.data;
+  }
+
+  static async adjustStock(body) {
+    const response = await axios.post(
+      `${this.BASE_URL}/transactions/adjust`,
       body,
       {
         headers: this.getHeader(),

@@ -23,5 +23,7 @@ public class CategoryDTO {
 
 
   private List<ProductDTO> products;
+  private Long parentId;
+  private String parentName;
 
 }

@@ -177,6 +177,47 @@ public class TransactionServiceImpl implements TransactionService {
   }
 
   @Override
+  public Response adjust(TransactionRequest transactionRequest) {
+    Long productId = transactionRequest.getProductId();
+    Integer newQuantity = transactionRequest.getQuantity();
+
+    if (newQuantity == null || newQuantity < 0) {
+      throw new NameValueRequiredException("Quantity must be greater than or equal to 0");
+    }
+
+    Product product = productRepository.findById(productId)
+        .orElseThrow(() -> new NotFoundException("Product Not Found"));
+
+    int oldQuantity = product.getStockQuantity();
+    int difference = newQuantity - oldQuantity;
+
+    User user = userService.getCurrentLoggedInUser();
+
+    // update product
+    product.setStockQuantity(newQuantity);
+    productRepository.save(product);
+
+    // create a transaction
+    Transaction transaction = Transaction.builder()
+        .transactionType(TransactionType.ADJUSTMENT)
+        .transactionStatus(TransactionStatus.COMPLETED)
+        .product(product)
+        .user(user)
+        .totalProduct(difference) // can be negative or positive depending on adjustment
+        .totalPrice(BigDecimal.ZERO)
+        .description(transactionRequest.getDescription())
+        .note(transactionRequest.getNote() != null ? transactionRequest.getNote() : "Adjusted. Old: " + oldQuantity + ", New: " + newQuantity)
+        .build();
+
+    transactionRepository.save(transaction);
+
+    return Response.builder()
+        .status(200)
+        .message("Inventory Adjustment successfully made")
+        .build();
+  }
+
+  @Override
   public Response getAllTransactions(int page, int size, String filter) {
 
     // Pageable dùng để phân trang (size : số lượng bản ghi trên mỗi trang)

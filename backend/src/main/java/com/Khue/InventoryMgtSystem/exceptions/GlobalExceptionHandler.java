@@ -13,6 +13,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<Response> handlerALlException(Exception ex) {
+    ex.printStackTrace();
     Response response = Response.builder()
         .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
         .message(ex.getMessage())

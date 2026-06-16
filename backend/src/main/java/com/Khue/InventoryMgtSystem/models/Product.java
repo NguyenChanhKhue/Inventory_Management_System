@@ -55,6 +55,18 @@ public class Product {
   
   private String imgUrl;
 
+  @Positive(message = "import price must be a positive value")
+  private BigDecimal importPrice;
+
+  private String unit;
+  
+  private String location;
+  
+  private int minStock;
+
+  @Column(columnDefinition = "boolean default true")
+  private boolean isActive = true;
+
   private final LocalDateTime createAt = LocalDateTime.now();
 
   @ManyToOne

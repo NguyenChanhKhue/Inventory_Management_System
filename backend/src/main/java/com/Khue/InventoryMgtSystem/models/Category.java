@@ -14,6 +14,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.JoinColumn;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -36,6 +38,10 @@ public class Category {
 
   @OneToMany(mappedBy = "category" , cascade = CascadeType.ALL)
   private List<Product> products;
+
+  @ManyToOne
+  @JoinColumn(name = "parent_id")
+  private Category parent;
 
 
   @Override
