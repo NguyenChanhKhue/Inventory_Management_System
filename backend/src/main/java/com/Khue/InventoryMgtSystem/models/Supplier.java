@@ -37,5 +37,7 @@ public class Supplier {
 
   private String address;
 
+  @Builder.Default
+  private Boolean active = true;
 
 }

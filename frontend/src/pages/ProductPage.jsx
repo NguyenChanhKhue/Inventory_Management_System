@@ -3,6 +3,7 @@ import Layout from "../components/Layout";
 import ApiService from "../service/ApiService";
 import { useNavigate } from "react-router-dom";
 import PaginationComponent from "../components/PaginationComponents";
+import * as XLSX from "xlsx";
 
 const ProductPage = () => {
   const [products, setProducts] = useState([]);
@@ -76,6 +77,39 @@ const ProductPage = () => {
     setValueToSearch(filter.trim());
   };
 
+  const handleExportCSV = async () => {
+    try {
+      const productData = valueToSearch
+        ? await ApiService.searchProduct(valueToSearch)
+        : await ApiService.getAllProducts();
+      
+      const allProducts = productData.products || [];
+      if (allProducts.length === 0) {
+        showMessage("Không có dữ liệu để xuất");
+        return;
+      }
+      
+      const excelData = allProducts.map(p => ({
+        "ID": p.id,
+        "Tên sản phẩm": p.name || "",
+        "Mã SKU": p.sku || "",
+        "Giá nhập (VNĐ)": p.importPrice || 0,
+        "Số lượng tồn": p.stockQuantity || 0,
+        "Tồn tối thiểu": p.minStock || 0,
+        "Đơn vị tính": p.unit || "",
+        "Vị trí kệ": p.location || ""
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Sản Phẩm");
+      
+      XLSX.writeFile(workbook, "DanhSachSanPham.xlsx");
+    } catch (error) {
+      showMessage("Lỗi xuất Excel: " + error);
+    }
+  };
+
   return (
     <Layout>
       {message && <div className="message">{message}</div>}
@@ -104,6 +138,13 @@ const ProductPage = () => {
                 Thêm sản phẩm
               </button>
             )}
+            <button
+              className="add-product-btn"
+              onClick={handleExportCSV}
+              style={{ backgroundColor: "#4CAF50", marginLeft: "10px" }}
+            >
+              Tải Excel (CSV)
+            </button>
           </div>
         </div>
 
@@ -120,22 +161,12 @@ const ProductPage = () => {
                 <div className="product-info">
                   <h3 className="name">{product.name}</h3>
                   <p className="sku">Mã: {product.sku}</p>
-                  <p className="price">Giá bán: {product.price?.toLocaleString()}đ</p>
                   <p className="price">Giá nhập: {product.importPrice?.toLocaleString()}đ</p>
                   <p className="sku">ĐVT: {product.unit}</p>
-                  <p className="location" style={{ color: '#ff9800', fontWeight: 'bold' }}>
-                    Vị trí kho: {product.location || "Chưa xác định"}
-                  </p>
+
                 </div>
 
                 <div className="product-actions">
-                  <button
-                    className="view-map-btn"
-                    onClick={() => navigate(`/warehouse-map?location=${encodeURIComponent(product.location || '')}`)}
-                    style={{ backgroundColor: '#2196f3', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '4px', cursor: 'pointer', marginRight: '5px' }}
-                  >
-                    Xem sơ đồ
-                  </button>
                   {isAdmin && (
                     <>
                       <button

@@ -144,6 +144,9 @@ button[type="submit"]:hover {
 
 .nav-links a {
   display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: #f1f1f1;
   text-decoration: none;
   padding: 10px 15px;
@@ -800,6 +803,143 @@ button[type="submit"]:hover {
   padding-bottom: 10px;
 }
 
+/* AUDIT LOG PAGE STYLING */
+.audit-log-page {
+  padding: 20px;
+  background-color: #f3f4f6;
+  width: 100%;
+}
+
+.audit-log-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.audit-log-header h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #008080;
+}
+
+.audit-log-header p {
+  color: #50646a;
+  margin-top: 5px;
+}
+
+.refresh-btn {
+  padding: 10px 18px;
+  background-color: #008080;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+}
+
+.refresh-btn:hover {
+  background-color: #2f4f4f;
+}
+
+.audit-log-container {
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}
+
+.audit-log-table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap;
+}
+
+.audit-log-table th,
+.audit-log-table td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.audit-log-table th {
+  background-color: #f8fafc;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+.audit-log-table tr:hover {
+  background-color: #f8fafc;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge-create {
+  background-color: #d1fae5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.badge-update {
+  background-color: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+.badge-delete {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+.badge-product {
+  background-color: #f3e8ff;
+  color: #6b21a8;
+}
+
+.badge-supplier {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.badge-category {
+  background-color: #cffafe;
+  color: #155e75;
+}
+
+.badge-transaction {
+  background-color: #ffedd5;
+  color: #9a3412;
+}
+
+.badge-default {
+  background-color: #f1f5f9;
+  color: #334155;
+}
+
+.log-details {
+  max-width: 400px;
+  white-space: normal;
+  word-wrap: break-word;
+  color: #475569;
+}
+
+
 /* General text styles */
 .section-card p {
   margin: 10px 0;
@@ -812,8 +952,8 @@ button[type="submit"]:hover {
 
 .product-image {
   width: 100%;
-  height: 130px;
-  object-fit: cover;
+  height: 250px;
+  object-fit: contain;
   border-radius: 8px;
   margin-bottom: 15px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);

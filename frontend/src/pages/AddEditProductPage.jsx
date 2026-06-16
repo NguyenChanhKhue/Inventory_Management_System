@@ -7,7 +7,6 @@ const AddEditProductPage = () => {
   const { productId } = useParams("");
   const [name, setName] = useState("");
   const [sku, setSku] = useState("");
-  const [price, setPrice] = useState("");
   const [stockQuantity, setStokeQuantity] = useState(0);
   const [categoryId, setCategoryId] = useState("");
   const [description, setDescription] = useState("");
@@ -44,7 +43,6 @@ const AddEditProductPage = () => {
           if (productData.status === 200) {
             setName(productData.product.name);
             setSku(productData.product.sku);
-            setPrice(productData.product.price);
             setStokeQuantity(productData.product.stockQuantity);
             setCategoryId(productData.product.categoryId);
             setDescription(productData.product.description);
@@ -93,7 +91,6 @@ const AddEditProductPage = () => {
     const productPayload = {
       name,
       sku,
-      price: price !== "" ? Number(price) : null,
       stockQuantity: stockQuantity !== "" ? Number(stockQuantity) : 0,
       categoryId: categoryId !== "" ? Number(categoryId) : null,
       description,
@@ -169,15 +166,6 @@ const AddEditProductPage = () => {
             />
           </div>
 
-          <div className="form-group">
-            <label>Giá bán (VNĐ)</label>
-            <input
-              type="number"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              required
-            />
-          </div>
 
           <div className="form-group">
             <label>Đơn vị tính</label>

@@ -35,6 +35,7 @@ import com.Khue.InventoryMgtSystem.repository.UserRepository;
 import com.Khue.InventoryMgtSystem.security.JwtUtils;
 import com.Khue.InventoryMgtSystem.services.EmailService;
 import com.Khue.InventoryMgtSystem.services.UserService;
+import com.Khue.InventoryMgtSystem.services.AuditLogService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -53,6 +54,7 @@ public class UserServiceImpl implements UserService {
   private final JwtUtils jwtUtils;
   private final PasswordResetTokenRepository passwordResetTokenRepository;
   private final EmailService emailService;
+  private final AuditLogService auditLogService;
 
   @Override
   public Response registerUser(RegisterRequest registerRequest) {
@@ -72,6 +74,8 @@ public class UserServiceImpl implements UserService {
 
     userRepository.save(userToSave);
 
+    auditLogService.logAction("CREATE", "User", userToSave.getId(), "Tạo mới tài khoản: " + userToSave.getEmail());
+
     return Response.builder()
         .status(200)
         .message("User was successfully registed")
@@ -82,6 +86,10 @@ public class UserServiceImpl implements UserService {
   public Response loginUser(LoginRequest loginRequest) {
     User user = userRepository.findByEmail(loginRequest.getEmail())
         .orElseThrow(() -> new NotFoundException("Email Not Found"));
+
+    if (!user.isActive()) {
+      throw new InvalidCredentialsException("Tài khoản của bạn đã bị khóa. Vui lòng liên hệ Admin.");
+    }
 
     if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
       throw new InvalidCredentialsException("Email hoặc mật khẩu không chính xác");
@@ -258,7 +266,13 @@ public class UserServiceImpl implements UserService {
       existingUser.setPassword(passwordEncoder.encode(userDTO.getPassword()));
     }
 
+    if (userDTO.getIsActive() != null) {
+      existingUser.setActive(userDTO.getIsActive());
+    }
+
     userRepository.save(existingUser);
+
+    auditLogService.logAction("UPDATE", "User", existingUser.getId(), "Cập nhật thông tin tài khoản: " + existingUser.getEmail());
 
     return Response.builder()
         .status(200)
@@ -268,13 +282,17 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public Response deleteUser(Long id) {
-    userRepository.findById(id).orElseThrow(() -> new NotFoundException("User Not Found"));
+    User existingUser = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User Not Found"));
 
-    userRepository.deleteById(id);
+    // Thay vì xóa vĩnh viễn (Hard Delete), ta dùng Soft Delete (Khóa)
+    existingUser.setActive(false);
+    userRepository.save(existingUser);
+
+    auditLogService.logAction("DELETE", "User", id, "Vô hiệu hóa (Khóa) tài khoản: " + existingUser.getEmail());
 
     return Response.builder()
         .status(200)
-        .message("User Successfully Deleted")
+        .message("Tài khoản đã bị khóa thành công (Soft Delete)")
         .build();
   }
 

@@ -77,16 +77,16 @@ const ReturnPage = () => {
     <Layout>
       {message && <div className="message">{message}</div>}
       <div className="purchase-form-page">
-        <h1>Return To Supplier</h1>
+        <h1>Hoàn trả nhà cung cấp</h1>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Select Product</label>
+            <label>Chọn sản phẩm</label>
             <select
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
               required
             >
-              <option value="">Select a product</option>
+              <option value="">Chọn sản phẩm</option>
               {products.map((product) => (
                 <option key={product.id} value={product.id}>
                   {product.name}
@@ -96,14 +96,14 @@ const ReturnPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Select Supplier</label>
+            <label>Chọn nhà cung cấp</label>
             <select
               value={supplierId}
               onChange={(e) => setSupplierId(e.target.value)}
               required
             >
-              <option value="">Select a supplier</option>
-              {suppliers.map((supplier) => (
+              <option value="">Chọn nhà cung cấp</option>
+              {suppliers.filter(s => s.active !== false).map((supplier) => (
                 <option key={supplier.id} value={supplier.id}>
                   {supplier.name}
                 </option>
@@ -112,7 +112,7 @@ const ReturnPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Description</label>
+            <label>Mô tả</label>
             <input
               type="text"
               value={description}
@@ -122,7 +122,7 @@ const ReturnPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Note</label>
+            <label>Ghi chú</label>
             <input
               type="text"
               value={note}
@@ -132,17 +132,18 @@ const ReturnPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Quantity</label>
+            <label>Số lượng trả (Tối đa: {products.find(p => p.id == productId)?.stockQuantity || 0})</label>
             <input
               type="number"
               min="1"
+              max={products.find(p => p.id == productId)?.stockQuantity || ""}
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
               required
             />
           </div>
 
-          <button type="submit">Return Product</button>
+          <button type="submit">Hoàn trả sản phẩm</button>
         </form>
       </div>
     </Layout>

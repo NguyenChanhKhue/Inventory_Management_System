@@ -3,8 +3,9 @@ import Layout from "../components/Layout";
 import ApiService from "../service/ApiService";
 import { useNavigate } from "react-router-dom";
 import PaginationComponent from "../components/PaginationComponents";
+import * as XLSX from "xlsx";
 
-const TransactionsPage = () => {
+const LichSuChungTuComponent = () => {
   const [transactions, setTransactions] = useState([]);
   const [message, setMessage] = useState("");
   const [filter, setFilter] = useState("");
@@ -56,15 +57,43 @@ const TransactionsPage = () => {
 
   //handle search
   const handleSearch = () => {
-    console.log("Searcxh hit");
-    console.log("FILTER IS: " + filter);
     setCurrentPage(1);
     setValueToSearch(filter);
   };
 
+  const handleExportCSV = async () => {
+    try {
+      const transactionData = await ApiService.getAllTransactions(valueToSearch);
+      const allTransactions = transactionData.transactions || [];
+      if (allTransactions.length === 0) {
+        showMessage("Không có dữ liệu để xuất");
+        return;
+      }
+      
+      const excelData = allTransactions.map(t => ({
+        "Mã GD": t.id,
+        "Loại giao dịch": t.transactionType || "",
+        "Trạng thái": t.transactionStatus || "",
+        "Tổng tiền (VNĐ)": t.totalPrice || 0,
+        "Tổng SP": t.totalProduct || 0,
+
+        "Ngày tạo": new Date(t.createAt).toLocaleString(),
+        "Mô tả": t.description || ""
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Giao Dịch");
+      
+      XLSX.writeFile(workbook, "LichSuGiaoDich.xlsx");
+    } catch (error) {
+      showMessage("Lỗi xuất Excel: " + error);
+    }
+  };
+
   //Navigate to transactions details page
   const navigateToTransactionDetailsPage = (transactionId) => {
-    navigate(`/transaction/${transactionId}`);
+    navigate(`/lich-su-chung-tu/${transactionId}`);
   };
 
   return (
@@ -72,15 +101,21 @@ const TransactionsPage = () => {
       {message && <p className="message">{message}</p>}
       <div className="transactions-page">
         <div className="transactions-header">
-          <h1>Transactions</h1>
+          <h1>Lịch sử Giao dịch</h1>
           <div className="transaction-search">
             <input
-              placeholder="Search transaction ..."
+              placeholder="Tìm kiếm giao dịch ..."
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               type="text"
             />
-            <button onClick={() => handleSearch()}> Search</button>
+            <button onClick={() => handleSearch()}>Tìm kiếm</button>
+            <button
+              onClick={handleExportCSV}
+              style={{ backgroundColor: "#4CAF50", color: "white", marginLeft: "10px" }}
+            >
+              Tải Excel (CSV)
+            </button>
           </div>
         </div>
 
@@ -88,20 +123,20 @@ const TransactionsPage = () => {
           <table className="transactions-table">
             <thead>
               <tr>
-                <th>TYPE</th>
-                <th>STATUS</th>
-                <th>TOTAL PRICE</th>
-                <th>TOTAL PRODUCTS</th>
-                <th>DATE</th>
-                <th>ACTIONS</th>
+                <th>Loại giao dịch</th>
+                <th>Trạng thái</th>
+                <th>Giá trị phiếu</th>
+                <th>Tổng sản phẩm</th>
+                <th>Thời gian</th>
+                <th>Thao tác</th>
               </tr>
             </thead>
 
             <tbody>
               {transactions.map((transaction) => (
                 <tr key={transaction.id}>
-                  <td>{transaction.transactionType}</td>
-                  <td>{transaction.transactionStatus}</td>
+                  <td>{{ IMPORT: 'NHẬP KHO', EXPORT: 'XUẤT KHO', ADJUSTMENT: 'ĐIỀU CHỈNH', RETURN_TO_SUPPLIER: 'HOÀN TRẢ' }[transaction.transactionType] || transaction.transactionType}</td>
+                  <td>{{ COMPLETED: 'HOÀN THÀNH', CANCELLED: 'ĐÃ HỦY', PENDING: 'CHỜ XỬ LÝ', PROCESSING: 'ĐANG XỬ LÝ' }[transaction.transactionStatus] || transaction.transactionStatus}</td>
                   <td>{transaction.totalPrice}</td>
                   <td>{transaction.totalProduct}</td>
                   <td>{new Date(transaction.createAt).toLocaleString()}</td>
@@ -112,7 +147,7 @@ const TransactionsPage = () => {
                         navigateToTransactionDetailsPage(transaction.id)
                       }
                     >
-                      View Details
+                      Chi tiết
                     </button>
                   </td>
                 </tr>
@@ -130,4 +165,4 @@ const TransactionsPage = () => {
     </Layout>
   );
 };
-export default TransactionsPage;
+export default LichSuChungTuComponent;

@@ -17,4 +17,6 @@ public interface ProductService {
   Response deleteProduct(Long id);
 
   Response searchProduct(String input);
+
+  Response getLowStockProducts();
 }

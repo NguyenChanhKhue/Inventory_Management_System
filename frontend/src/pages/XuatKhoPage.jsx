@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout";
 import ApiService from "../service/ApiService";
 
-const SellPage = () => {
+const XuatKhoComponent = () => {
   const [products, setProducts] = useState([]);
   const [productId, setProductId] = useState("");
   const [description, setDescription] = useState("");
   const [note, setNote] = useState("");
   const [quantity, setQuantity] = useState("");
+
   const [message, setMessage] = useState("");
 
   useEffect(() => {
@@ -37,6 +38,7 @@ const SellPage = () => {
       quantity: parseInt(quantity),
       description,
       note,
+
     };
 
     try {
@@ -45,7 +47,7 @@ const SellPage = () => {
       resetForm();
     } catch (error) {
       showMessage(
-        error.response?.data?.message || "Lỗi khi xuất bán sản phẩm: " + error,
+        error.response?.data?.message || "Lỗi khi xuất kho: " + error,
       );
     }
   };
@@ -55,6 +57,7 @@ const SellPage = () => {
     setDescription("");
     setNote("");
     setQuantity("");
+
   };
 
   //metjhod to show message or errors
@@ -69,7 +72,7 @@ const SellPage = () => {
     <Layout>
       {message && <div className="message">{message}</div>}
       <div className="purchase-form-page">
-        <h1>Xuất bán sản phẩm</h1>
+        <h1>Phiếu xuất kho</h1>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Chọn sản phẩm</label>
@@ -89,14 +92,17 @@ const SellPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Số lượng</label>
+            <label>Số lượng (Tồn kho: {products.find(p => p.id == productId)?.stockQuantity || 0})</label>
             <input
               type="number"
+              min="1"
+              max={products.find(p => p.id == productId)?.stockQuantity || ""}
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
               required
             />
           </div>
+
 
           <div className="form-group">
             <label>Mô tả</label>
@@ -118,10 +124,10 @@ const SellPage = () => {
             />
           </div>
 
-          <button type="submit">Xuất bán</button>
+          <button type="submit">Tạo phiếu xuất</button>
         </form>
       </div>
     </Layout>
   );
 };
-export default SellPage;
+export default XuatKhoComponent;

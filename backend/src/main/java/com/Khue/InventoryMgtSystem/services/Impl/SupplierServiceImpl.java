@@ -11,7 +11,10 @@ import com.Khue.InventoryMgtSystem.dto.SupplierDTO;
 import com.Khue.InventoryMgtSystem.exceptions.NotFoundException;
 import com.Khue.InventoryMgtSystem.models.Supplier;
 import com.Khue.InventoryMgtSystem.repository.SupplierRepository;
+import com.Khue.InventoryMgtSystem.repository.TransactionRepository;
 import com.Khue.InventoryMgtSystem.services.SupplierService;
+import com.Khue.InventoryMgtSystem.services.AuditLogService;
+import com.Khue.InventoryMgtSystem.exceptions.NameValueRequiredException;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,13 +28,19 @@ public class SupplierServiceImpl implements SupplierService {
 
   private final SupplierRepository supplierRepository;
 
+  private final TransactionRepository transactionRepository;
+
   private final ModelMapper modelMapper;
+
+  private final AuditLogService auditLogService;
 
   @Override
   public Response addSupplier(SupplierDTO supplierDTO) {
     Supplier supplierToSave = modelMapper.map(supplierDTO, Supplier.class);
 
     supplierRepository.save(supplierToSave);
+
+    auditLogService.logAction("CREATE", "Supplier", supplierToSave.getId(), "Tạo mới nhà cung cấp: " + supplierToSave.getName());
 
     return Response.builder()
         .status(200)
@@ -46,8 +55,11 @@ public class SupplierServiceImpl implements SupplierService {
     if(supplierDTO.getName() != null) existingSupplier.setName(supplierDTO.getName());
     if(supplierDTO.getContactInfo() != null) existingSupplier.setContactInfo(supplierDTO.getContactInfo());
     if(supplierDTO.getAddress() != null) existingSupplier.setAddress(supplierDTO.getAddress());
+    if(supplierDTO.getActive() != null) existingSupplier.setActive(supplierDTO.getActive());
 
     supplierRepository.save(existingSupplier);
+
+    auditLogService.logAction("UPDATE", "Supplier", existingSupplier.getId(), "Cập nhật nhà cung cấp: " + existingSupplier.getName());
 
     return Response.builder()
                     .status(200)
@@ -86,7 +98,13 @@ public class SupplierServiceImpl implements SupplierService {
   public Response deleteSupplier(Long id) {
     supplierRepository.findById(id).orElseThrow(() -> new NotFoundException("Supplier Not Found"));
 
+    if (transactionRepository.existsBySupplier_Id(id)) {
+      throw new NameValueRequiredException("Không thể xóa nhà cung cấp vì đã có lịch sử giao dịch");
+    }
+
     supplierRepository.deleteById(id);
+
+    auditLogService.logAction("DELETE", "Supplier", id, "Xóa cứng nhà cung cấp (ID: " + id + ")");
 
     return Response.builder()
                     .status(200)

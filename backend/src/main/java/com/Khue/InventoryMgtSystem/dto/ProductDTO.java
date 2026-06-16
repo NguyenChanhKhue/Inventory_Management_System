@@ -28,7 +28,6 @@ public class ProductDTO {
 
   private String sku;
 
-  private BigDecimal price;
   
   private Integer stockQuantity;
 

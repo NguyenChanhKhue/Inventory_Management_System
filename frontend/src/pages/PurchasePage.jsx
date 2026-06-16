@@ -104,7 +104,7 @@ const PurchasePage = () => {
               required
             >
               <option value="">Chọn một nhà cung cấp</option>
-              {suppliers.map((supplier) => (
+              {suppliers.filter(s => s.active !== false).map((supplier) => (
                 <option key={supplier.id} value={supplier.id}>
                   {supplier.name}
                 </option>

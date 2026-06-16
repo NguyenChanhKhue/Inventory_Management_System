@@ -147,7 +147,7 @@ export default class ApiService {
 
   static async deleteUser(userID) {
     const response = await axios.delete(
-      `${this.BASE_URL}/user/update/${userID}`,
+      `${this.BASE_URL}/user/delete/${userID}`,
       {
         headers: this.getHeader(),
       },
@@ -181,6 +181,13 @@ export default class ApiService {
 
   static async getAllProducts() {
     const response = await axios.get(`${this.BASE_URL}/products/all`, {
+      headers: this.getHeader(),
+    });
+    return response.data;
+  }
+
+  static async getLowStockProducts() {
+    const response = await axios.get(`${this.BASE_URL}/products/low-stock`, {
       headers: this.getHeader(),
     });
     return response.data;
@@ -400,6 +407,20 @@ export default class ApiService {
   }
 
   /**AUTHENTICATION CHECKER */
+  static async getDashboardSummary() {
+    const response = await axios.get(`${this.BASE_URL}/dashboard/summary`, {
+      headers: this.getHeader(),
+    });
+    return response.data;
+  }
+
+  static async getAllAuditLogs() {
+    const response = await axios.get(`${this.BASE_URL}/audit-logs`, {
+      headers: this.getHeader(),
+    });
+    return response.data;
+  }
+
   static logout() {
     this.clearAuth();
   }

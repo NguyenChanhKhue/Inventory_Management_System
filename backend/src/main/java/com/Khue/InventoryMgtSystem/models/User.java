@@ -54,10 +54,14 @@ public class User {
   @Column(name = "create_at")
   private final LocalDateTime createAt =  LocalDateTime.now();
 
+  @Column(name = "is_active", nullable = false)
+  @Builder.Default
+  private boolean isActive = true;
+
   @Override
   public String toString() {
     return "User [id=" + id + ", name=" + name + ", email=" + email + ", password=" + password
-        + ", phoneNumber=" + phoneNumber + ", role=" + role + ", createAt=" + createAt + "]";
+        + ", phoneNumber=" + phoneNumber + ", role=" + role + ", createAt=" + createAt + ", isActive=" + isActive + "]";
   }
 
 }
