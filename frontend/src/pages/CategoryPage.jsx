@@ -31,13 +31,13 @@ const CategoryPage = () => {
   //add category
   const addCategory = async () => {
     if (!categoryName) {
-      showMessage("Category name can not empty");
+      showMessage("Tên danh mục không được để trống");
       return;
     }
 
     try {
       const response = await ApiService.createCategory({ name: categoryName });
-      showMessage("Category successfully added");
+      showMessage("Thêm danh mục thành công");
       setCategoryName(""); // clear input
       setCategories((prevCategories) => [
         ...prevCategories,
@@ -56,7 +56,7 @@ const CategoryPage = () => {
       await ApiService.updateCategory(editingCategoryId, {
         name: categoryName,
       });
-      showMessage("Category successfully Updated");
+      showMessage("Cập nhật danh mục thành công");
       setCategories((prevCategories) =>
         prevCategories.map((category) =>
           category.id === editingCategoryId
@@ -83,10 +83,10 @@ const CategoryPage = () => {
 
   //delete category
   const handleDeleteCategory = async (categoryId) => {
-    if (window.confirm("Are you sure you want to delete this category?")) {
+    if (window.confirm("Bạn có chắc chắn muốn xóa danh mục này không?")) {
       try {
         await ApiService.deleteCategory(categoryId);
-        showMessage("Category sucessfully Deleted");
+        showMessage("Xóa danh mục thành công");
         setCategories((prevCategories) =>
           prevCategories.filter((category) => category.id !== categoryId),
         );
@@ -112,19 +112,19 @@ const CategoryPage = () => {
       {message && <div className="message">{message}</div>}
       <div className="category-page">
         <div className="category-header">
-          <h1>Categories</h1>
+          <h1>Danh mục sản phẩm</h1>
           <div className="add-cat">
             <input
               value={categoryName}
               type="text"
-              placeholder="Category Name"
+              placeholder="Tên danh mục"
               onChange={(e) => setCategoryName(e.target.value)}
             />
 
             {!isEditing ? (
-              <button onClick={addCategory}>Add Category</button>
+              <button onClick={addCategory}>Thêm Danh mục</button>
             ) : (
-              <button onClick={editCategory}>Edit Category</button>
+              <button onClick={editCategory}>Sửa Danh mục</button>
             )}
           </div>
         </div>
@@ -137,10 +137,10 @@ const CategoryPage = () => {
 
                 <div className="category-actions">
                   <button onClick={() => handleEditCategory(category)}>
-                    Edit
+                    Sửa
                   </button>
                   <button onClick={() => handleDeleteCategory(category.id)}>
-                    Delete
+                    Xóa
                   </button>
                 </div>
               </li>

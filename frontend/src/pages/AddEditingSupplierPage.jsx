@@ -28,7 +28,7 @@ const AddEditSupplierPage = () => {
         } catch (error) {
           showMessage(
             error.response?.data?.message ||
-              "Error Getting a SUpplier by Id: " + error,
+              "Lỗi khi lấy thông tin nhà cung cấp: " + error,
           );
         }
       };
@@ -44,17 +44,17 @@ const AddEditSupplierPage = () => {
     try {
       if (isEditing) {
         await ApiService.updateSupplier(supplierId, supplierData);
-        showMessage("Supplier Edited succesfully");
+        showMessage("Cập nhật nhà cung cấp thành công");
         navigate("/supplier");
       } else {
         await ApiService.addSupplier(supplierData);
-        showMessage("Supplier Added succesfully");
+        showMessage("Thêm nhà cung cấp thành công");
         navigate("/supplier");
       }
     } catch (error) {
       showMessage(
         error.response?.data?.message ||
-          "Error Getting a SUpplier by Id: " + error,
+          "Lỗi khi lưu nhà cung cấp: " + error,
       );
     }
   };
@@ -71,11 +71,11 @@ const AddEditSupplierPage = () => {
     <Layout>
       {message && <div className="message">{message}</div>}
       <div className="supplier-form-page">
-        <h1>{isEditing ? "Edit Supplier" : "Add Supplier"}</h1>
+        <h1>{isEditing ? "Sửa nhà cung cấp" : "Thêm nhà cung cấp"}</h1>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Supplier Name</label>
+            <label>Tên nhà cung cấp</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -85,7 +85,7 @@ const AddEditSupplierPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Contact Info</label>
+            <label>Thông tin liên hệ</label>
             <input
               value={contactInfo}
               onChange={(e) => setContactInfo(e.target.value)}
@@ -95,7 +95,7 @@ const AddEditSupplierPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Address</label>
+            <label>Địa chỉ</label>
             <input
               value={address}
               onChange={(e) => setAddress(e.target.value)}
@@ -104,7 +104,7 @@ const AddEditSupplierPage = () => {
             />
           </div>
           <button type="submit">
-            {isEditing ? "Edit Supplier" : "Add Supplier"}
+            {isEditing ? "Lưu thay đổi" : "Thêm nhà cung cấp"}
           </button>
         </form>
       </div>

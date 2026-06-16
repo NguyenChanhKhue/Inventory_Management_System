@@ -96,17 +96,17 @@ const DashboardPage = () => {
       <div className="dashboard-page">
         <div className="button-group">
           <button onClick={() => setSelectedData("count")}>
-            ToTal No Of Transactions
+            Tổng số giao dịch
           </button>
           <button onClick={() => setSelectedData("quantity")}>
-            Product Quantity
+            Số lượng sản phẩm
           </button>
-          <button onClick={() => setSelectedData("amount")}>Amount</button>
+          <button onClick={() => setSelectedData("amount")}>Doanh thu</button>
         </div>
 
         <div className="dashboard-content">
           <div className="filter-section">
-            <label htmlFor="month-select">Select Month:</label>
+            <label htmlFor="month-select">Chọn tháng:</label>
             <select
               id="month-select"
               value={selectedMonth}
@@ -119,7 +119,7 @@ const DashboardPage = () => {
               ))}
             </select>
 
-            <label htmlFor="year-select">Select Year:</label>
+            <label htmlFor="year-select">Chọn năm:</label>
             <select
               id="year-select"
               value={selectedYear}
@@ -139,14 +139,14 @@ const DashboardPage = () => {
           {/* Display the chart */}
           <div className="chart-section">
             <div className="chart-container">
-              <h3>Daily Transactions</h3>
+              <h3>Giao dịch hàng ngày</h3>
               <ResponsiveContainer width="100%" height={400}>
                 <LineChart data={transactionData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis
                     dataKey="day"
                     label={{
-                      value: "Day",
+                      value: "Ngày",
                       position: "insideBottomRight",
                       offset: -5,
                     }}

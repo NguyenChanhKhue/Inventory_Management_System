@@ -16,62 +16,62 @@ const Sidebar = () => {
       <ul className="nav-links">
         {isAuth && (
           <li>
-            <Link to="/dashboard">Dashboard</Link>
+            <Link to="/dashboard">Bảng điều khiển</Link>
           </li>
         )}
 
         {isAuth && (
           <li>
-            <Link to="/transaction">Transactions</Link>
+            <Link to="/transaction">Giao dịch</Link>
           </li>
         )}
 
         {isAdmin && (
           <li>
-            <Link to="/category">Category</Link>
+            <Link to="/category">Danh mục</Link>
           </li>
         )}
 
         {isAdmin && (
           <li>
-            <Link to="/product">Product</Link>
+            <Link to="/product">Sản phẩm</Link>
           </li>
         )}
 
         {isAdmin && (
           <li>
-            <Link to="/supplier">Supplier</Link>
+            <Link to="/supplier">Nhà cung cấp</Link>
           </li>
         )}
 
         {isAuth && (
           <li>
-            <Link to="/purchase">Purchase</Link>
+            <Link to="/purchase">Nhập hàng</Link>
           </li>
         )}
 
         {isAuth && (
           <li>
-            <Link to="/sell">Sell</Link>
+            <Link to="/sell">Xuất bán</Link>
           </li>
         )}
 
         {isAuth && (
           <li>
-            <Link to="/return">Return</Link>
+            <Link to="/return">Hoàn trả</Link>
           </li>
         )}
 
         {isAuth && (
           <li>
-            <Link to="/profile">Profile</Link>
+            <Link to="/profile">Hồ sơ cá nhân</Link>
           </li>
         )}
 
         {isAuth && (
           <li>
             <Link onClick={logout} to="/login">
-              Logout
+              Đăng xuất
             </Link>
           </li>
         )}

@@ -12,6 +12,9 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.Map;
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 
 import com.Khue.InventoryMgtSystem.dto.ProductDTO;
 import com.Khue.InventoryMgtSystem.dto.Response;
@@ -39,8 +42,7 @@ public class ProductServiceImpl implements ProductService {
 
   private final TransactionRepository transactionRepository;
 
-  @Value("${app.product-images-dir:./product-images}")
-  private String productImagesDir;
+  private final Cloudinary cloudinary;
 
   @Override
   public Response saveProduct(ProductDTO productDTO, MultipartFile imageFile) {
@@ -64,7 +66,7 @@ public class ProductServiceImpl implements ProductService {
 
     return Response.builder()
         .status(200)
-        .message("Product Successfully Saved")
+        .message("Đã lưu sản phẩm thành công")
         .build();
   }
 
@@ -79,7 +81,7 @@ public class ProductServiceImpl implements ProductService {
 
     if (productDTO.getCategoryId() != null && productDTO.getCategoryId() > 0) {
       Category category = categoryRepository.findById(productDTO.getCategoryId())
-          .orElseThrow(() -> new NotFoundException("Category Not Found"));
+          .orElseThrow(() -> new NotFoundException("Không tìm thấy danh mục này"));
       existingProduct.setCategory(category);
     }
 
@@ -107,7 +109,7 @@ public class ProductServiceImpl implements ProductService {
 
     return Response.builder()
         .status(200)
-        .message("Product Updated successfully")
+        .message("Cập nhật sản phẩm thành công")
         .build();
   }
 
@@ -157,7 +159,7 @@ public class ProductServiceImpl implements ProductService {
 
     return Response.builder()
         .status(200)
-        .message("Product Deleted successfully")
+        .message("Đã xóa sản phẩm thành công")
         .build();
   }
 
@@ -166,7 +168,7 @@ public class ProductServiceImpl implements ProductService {
     List<Product> products = productRepository.findByNameContainingOrDescriptionContaining(input, input);
 
     if (products.isEmpty()) {
-      throw new NotFoundException("Product Not Found");
+      throw new NotFoundException("Không tìm thấy sản phẩm nào");
     }
 
     List<ProductDTO> productDTOList = modelMapper.map(products, new TypeToken<List<ProductDTO>>() {
@@ -185,21 +187,14 @@ public class ProductServiceImpl implements ProductService {
       throw new IllegalArgumentException("Only image files under 1 GB is allowed");
     }
 
-    File directory = new File(productImagesDir);
-    if (!directory.exists() && !directory.mkdirs()) {
-      throw new IllegalArgumentException("Error creating image directory");
-    }
-
-    String uniqueFileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
-    File destinationFile = new File(directory, uniqueFileName);
-
     try {
-      imageFile.transferTo(destinationFile);
+      Map uploadResult = cloudinary.uploader().upload(imageFile.getBytes(), ObjectUtils.emptyMap());
+      String url = uploadResult.get("secure_url").toString();
+      log.info("Saved product image to Cloudinary: {}", url);
+      return url;
     } catch (Exception e) {
+      log.error("Error Saving Image to Cloudinary", e);
       throw new IllegalArgumentException("Error Saving Image " + e.getMessage());
     }
-
-    log.info("Saved product image to {}", destinationFile.getAbsolutePath());
-    return "products/" + uniqueFileName;
   }
 }

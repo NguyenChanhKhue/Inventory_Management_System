@@ -69,4 +69,17 @@ public class GlobalExceptionHandler {
         .build();
     return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
   }
+
+  @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+  public ResponseEntity<Response> handlerDataIntegrityViolationException(org.springframework.dao.DataIntegrityViolationException ex) {
+    String message = "Dữ liệu không hợp lệ hoặc đã tồn tại trong hệ thống.";
+    if (ex.getMessage() != null && ex.getMessage().contains("Duplicate entry") && ex.getMessage().contains("users.email")) {
+      message = "Email này đã được sử dụng. Vui lòng chọn email khác!";
+    }
+    Response response = Response.builder()
+        .status(HttpStatus.CONFLICT.value())
+        .message(message)
+        .build();
+    return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+  }
 }

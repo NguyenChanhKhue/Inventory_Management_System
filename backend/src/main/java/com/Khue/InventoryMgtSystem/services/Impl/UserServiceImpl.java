@@ -84,7 +84,7 @@ public class UserServiceImpl implements UserService {
         .orElseThrow(() -> new NotFoundException("Email Not Found"));
 
     if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
-      throw new InvalidCredentialsException("Email or Password is incorrect");
+      throw new InvalidCredentialsException("Email hoặc mật khẩu không chính xác");
     }
 
     String token = jwtUtils.generateToken(user.getEmail());
@@ -144,15 +144,15 @@ public class UserServiceImpl implements UserService {
         .orElseThrow(() -> new IllegalArgumentException("No active OTP request found"));
 
     if (passwordResetToken.isOtpVerified()) {
-      throw new IllegalArgumentException("OTP has already been used");
+      throw new IllegalArgumentException("Mã OTP này đã được sử dụng");
     }
 
     if (passwordResetToken.getExpiresAt().isBefore(LocalDateTime.now())) {
-      throw new IllegalArgumentException("OTP has expired");
+      throw new IllegalArgumentException("Mã OTP đã hết hạn");
     }
 
     if (!passwordResetToken.getTokenHash().equals(hashValue(verifyOtpRequest.getOtp()))) {
-      throw new IllegalArgumentException("OTP is incorrect");
+      throw new IllegalArgumentException("Mã OTP không chính xác");
     }
 
     String resetToken = generateResetToken();
@@ -173,7 +173,7 @@ public class UserServiceImpl implements UserService {
   @Transactional
   public Response resetPassword(ResetPasswordRequest resetPasswordRequest) {
     if (!resetPasswordRequest.getNewPassword().equals(resetPasswordRequest.getConfirmPassword())) {
-      throw new IllegalArgumentException("Confirm password does not match");
+      throw new IllegalArgumentException("Mật khẩu xác nhận không khớp");
     }
 
     PasswordResetToken passwordResetToken = passwordResetTokenRepository
@@ -181,11 +181,11 @@ public class UserServiceImpl implements UserService {
         .orElseThrow(() -> new IllegalArgumentException("Reset token is invalid"));
 
     if (!passwordResetToken.isOtpVerified()) {
-      throw new IllegalArgumentException("OTP verification is required before resetting password");
+      throw new IllegalArgumentException("Bạn cần xác thực mã OTP trước khi đổi mật khẩu");
     }
 
     if (passwordResetToken.getExpiresAt().isBefore(LocalDateTime.now())) {
-      throw new IllegalArgumentException("Reset token has expired");
+      throw new IllegalArgumentException("Phiên đổi mật khẩu đã hết hạn");
     }
 
     User user = passwordResetToken.getUser();

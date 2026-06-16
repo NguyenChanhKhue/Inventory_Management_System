@@ -25,7 +25,7 @@ const LoginPage = () => {
       }
     } catch (error) {
       showMessage(
-        error.response?.data?.message || "Error Loggin a User: " + error,
+        error.response?.data?.message || "Lỗi khi đăng nhập: " + error,
       );
       console.log(error);
     }
@@ -40,7 +40,7 @@ const LoginPage = () => {
 
   return (
     <div className="auth-container">
-      <h2>Login</h2>
+      <h2>Đăng nhập</h2>
 
       {message && <p className="message">{message}</p>}
 
@@ -55,19 +55,19 @@ const LoginPage = () => {
 
         <input
           type="password"
-          placeholder="Password"
+          placeholder="Mật khẩu"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
         />
 
-        <button type="submit">Login</button>
+        <button type="submit">Đăng nhập</button>
       </form>
       <p className="auth-helper-text">
-        <Link to="/forgot-password">Forgot password?</Link>
+        <Link to="/forgot-password">Quên mật khẩu?</Link>
       </p>
       <p>
-        Don't have an account? <a href="/register">Register</a>
+        Chưa có tài khoản? <a href="/register">Đăng ký</a>
       </p>
     </div>
   );

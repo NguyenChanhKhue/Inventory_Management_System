@@ -38,7 +38,7 @@ const ProductPage = () => {
         }
       } catch (error) {
         showMessage(
-          error.response?.data?.message || "Error Getting Products: " + error,
+          error.response?.data?.message || "Lỗi khi lấy dữ liệu sản phẩm: " + error,
         );
       }
     };
@@ -48,15 +48,15 @@ const ProductPage = () => {
 
   //Delete a product
   const handleDeleteProduct = async (productId) => {
-    if (window.confirm("Are you sure you want to delete this Product?")) {
+    if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này không?")) {
       try {
         await ApiService.deleteProduct(productId);
-        showMessage("Product sucessfully Deleted");
+        showMessage("Đã xóa sản phẩm thành công");
         window.location.reload(); //relode page
       } catch (error) {
         showMessage(
           error.response?.data?.message ||
-            "Error Deleting in a product: " + error,
+            "Lỗi khi xóa sản phẩm: " + error,
         );
       }
     }
@@ -81,17 +81,17 @@ const ProductPage = () => {
 
       <div className="product-page">
         <div className="product-header">
-          <h1>Products</h1>
+          <h1>Sản phẩm</h1>
           <div className="product-header-actions">
             <div className="product-search">
               <input
                 type="text"
-                placeholder="Search product ..."
+                placeholder="Tìm kiếm sản phẩm ..."
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
               />
               <button type="button" onClick={handleSearch}>
-                Search
+                Tìm kiếm
               </button>
             </div>
 
@@ -99,7 +99,7 @@ const ProductPage = () => {
               className="add-product-btn"
               onClick={() => navigate("/add-product")}
             >
-              Add Product
+              Thêm sản phẩm
             </button>
           </div>
         </div>
@@ -116,9 +116,9 @@ const ProductPage = () => {
 
                 <div className="product-info">
                   <h3 className="name">{product.name}</h3>
-                  <p className="sku">Sku: {product.su}</p>
-                  <p className="price">Price: {product.price}</p>
-                  <p className="quantity">Quantity: {product.stockQuantity}</p>
+                  <p className="sku">Mã: {product.su}</p>
+                  <p className="price">Giá: {product.price}</p>
+                  <p className="quantity">Số lượng: {product.stockQuantity}</p>
                 </div>
 
                 <div className="product-actions">
@@ -126,13 +126,13 @@ const ProductPage = () => {
                     className="edit-btn"
                     onClick={() => navigate(`/edit-product/${product.id}`)}
                   >
-                    Edit
+                    Sửa
                   </button>
                   <button
                     className="delete-btn"
                     onClick={() => handleDeleteProduct(product.id)}
                   >
-                    Delete
+                    Xóa
                   </button>
                 </div>
               </div>

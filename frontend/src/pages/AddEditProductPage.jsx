@@ -27,7 +27,7 @@ const AddEditProductPage = () => {
       } catch (error) {
         showMessage(
           error.response?.data?.message ||
-            "Error Getting all Categories: " + error,
+            "Lỗi khi tải danh mục: " + error,
         );
       }
     };
@@ -51,7 +51,7 @@ const AddEditProductPage = () => {
         } catch (error) {
           showMessage(
             error.response?.data?.message ||
-              "Error Getting a Product by Id: " + error,
+              "Lỗi khi lấy thông tin sản phẩm: " + error,
           );
         }
       }
@@ -94,15 +94,15 @@ const AddEditProductPage = () => {
       if (isEditing) {
         formData.append("productId", productId);
         await ApiService.updateProduct(formData);
-        showMessage("Product successfully updated");
+        showMessage("Cập nhật sản phẩm thành công");
       } else {
         await ApiService.addProduct(formData);
-        showMessage("Product successfully Saved 🤩");
+        showMessage("Thêm sản phẩm thành công 🤩");
       }
       navigate("/product");
     } catch (error) {
       showMessage(
-        error.response?.data?.message || "Error Saving a Product: " + error,
+        error.response?.data?.message || "Lỗi khi lưu sản phẩm: " + error,
       );
     }
   };
@@ -112,10 +112,10 @@ const AddEditProductPage = () => {
       {message && <div className="message">{message}</div>}
 
       <div className="product-form-page">
-        <h1>{isEditing ? "Edit Product" : "Add Product"}</h1>
+        <h1>{isEditing ? "Sửa sản phẩm" : "Thêm sản phẩm"}</h1>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Product Name</label>
+            <label>Tên sản phẩm</label>
             <input
               type="text"
               value={name}
@@ -125,7 +125,7 @@ const AddEditProductPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Sku</label>
+            <label>Mã sản phẩm (SKU)</label>
             <input
               type="text"
               value={sku}
@@ -135,7 +135,7 @@ const AddEditProductPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Stock Quantity</label>
+            <label>Số lượng kho</label>
             <input
               type="number"
               value={stockQuantity}
@@ -145,7 +145,7 @@ const AddEditProductPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Price</label>
+            <label>Giá bán</label>
             <input
               type="number"
               value={price}
@@ -155,7 +155,7 @@ const AddEditProductPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Description</label>
+            <label>Mô tả</label>
 
             <textarea
               value={description}
@@ -164,14 +164,14 @@ const AddEditProductPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Category</label>
+            <label>Danh mục</label>
 
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
               required
             >
-              <option value="">Select a category</option>
+              <option value="">Chọn một danh mục</option>
 
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
@@ -182,7 +182,7 @@ const AddEditProductPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Product Image</label>
+            <label>Hình ảnh sản phẩm</label>
             <input type="file" onChange={handleImageChange} />
 
             {imageUrl && (
@@ -194,7 +194,7 @@ const AddEditProductPage = () => {
             )}
           </div>
           <button type="submit">
-            {isEditing ? "Edit Product" : "Add Product"}
+            {isEditing ? "Lưu thay đổi" : "Thêm sản phẩm"}
           </button>
         </form>
       </div>

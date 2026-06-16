@@ -20,7 +20,7 @@ const SupplierPage = () => {
         }
       } catch (error) {
         showMessage(
-          error.response?.data?.message || "Error Getting Suppliers: " + error,
+          error.response?.data?.message || "Lỗi khi lấy danh sách nhà cung cấp: " + error,
         );
         console.log(error);
       }
@@ -38,7 +38,7 @@ const SupplierPage = () => {
   //Delete Supplier
   const handleDeleteSupplier = async (supplierId) => {
     try {
-      if (window.confirm("Are you sure you want to delete this supplier? ")) {
+      if (window.confirm("Bạn có chắc chắn muốn xóa nhà cung cấp này không?")) {
         await ApiService.deleteSupplier(supplierId);
         window.location.reload();
       }
@@ -54,10 +54,10 @@ const SupplierPage = () => {
       {message && <div className="message">{message}</div>}
       <div className="supplier-page">
         <div className="supplier-header">
-          <h1>Suppliers</h1>
+          <h1>Nhà cung cấp</h1>
           <div className="add-sup">
             <button onClick={() => navigate("/add-supplier")}>
-              Add Supplier
+              Thêm nhà cung cấp
             </button>
           </div>
         </div>
@@ -73,10 +73,10 @@ const SupplierPage = () => {
                 <button
                   onClick={() => navigate(`/edit-supplier/${supplier.id}`)}
                 >
-                  Edit
+                  Sửa
                 </button>
                 <button onClick={() => handleDeleteSupplier(supplier.id)}>
-                  Delete
+                  Xóa
                 </button>
               </div>
             </li>

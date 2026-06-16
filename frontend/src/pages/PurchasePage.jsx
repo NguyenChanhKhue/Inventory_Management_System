@@ -21,7 +21,7 @@ const PurchasePage = () => {
         setSuppliers(supplierData.suppliers);
       } catch (error) {
         showMessage(
-          error.response?.data?.message || "Error Getting Products: " + error,
+          error.response?.data?.message || "Lỗi khi tải dữ liệu: " + error,
         );
       }
     };
@@ -33,7 +33,7 @@ const PurchasePage = () => {
     e.preventDefault();
 
     if (!productId || !supplierId || !quantity) {
-      showMessage("Please fill in all required fields");
+      showMessage("Vui lòng điền đầy đủ các trường bắt buộc");
       return;
     }
     const body = {
@@ -51,7 +51,7 @@ const PurchasePage = () => {
       resetForm();
     } catch (error) {
       showMessage(
-        error.response?.data?.message || "Error Purchasing Products: " + error,
+        error.response?.data?.message || "Lỗi khi nhập hàng: " + error,
       );
     }
   };
@@ -76,17 +76,17 @@ const PurchasePage = () => {
     <Layout>
       {message && <div className="message">{message}</div>}
       <div className="purchase-form-page">
-        <h1>Receive Inventory</h1>
+        <h1>Nhập hàng</h1>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Select product</label>
+            <label>Chọn sản phẩm</label>
 
             <select
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
               required
             >
-              <option value="">Select a product</option>
+              <option value="">Chọn một sản phẩm</option>
               {products.map((product) => (
                 <option key={product.id} value={product.id}>
                   {product.name}
@@ -96,14 +96,14 @@ const PurchasePage = () => {
           </div>
 
           <div className="form-group">
-            <label>Select Supplier</label>
+            <label>Chọn nhà cung cấp</label>
 
             <select
               value={supplierId}
               onChange={(e) => setSuppplierId(e.target.value)}
               required
             >
-              <option value="">Select a supplier</option>
+              <option value="">Chọn một nhà cung cấp</option>
               {suppliers.map((supplier) => (
                 <option key={supplier.id} value={supplier.id}>
                   {supplier.name}
@@ -113,7 +113,7 @@ const PurchasePage = () => {
           </div>
 
           <div className="form-group">
-            <label>Description</label>
+            <label>Mô tả</label>
             <input
               type="text"
               value={description}
@@ -123,7 +123,7 @@ const PurchasePage = () => {
           </div>
 
           <div className="form-group">
-            <label>Note</label>
+            <label>Ghi chú</label>
             <input
               type="text"
               value={note}
@@ -133,7 +133,7 @@ const PurchasePage = () => {
           </div>
 
           <div className="form-group">
-            <label>Quantity</label>
+            <label>Số lượng</label>
             <input
               type="number"
               value={quantity}
@@ -142,7 +142,7 @@ const PurchasePage = () => {
             />
           </div>
 
-          <button type="submit">Purchase Product</button>
+          <button type="submit">Xác nhận nhập hàng</button>
         </form>
       </div>
     </Layout>

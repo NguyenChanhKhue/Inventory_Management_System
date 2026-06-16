@@ -17,7 +17,7 @@ const SellPage = () => {
         setProducts(productData.products);
       } catch (error) {
         showMessage(
-          error.response?.data?.message || "Error Getting Products: " + error,
+          error.response?.data?.message || "Lỗi khi tải dữ liệu sản phẩm: " + error,
         );
       }
     };
@@ -29,7 +29,7 @@ const SellPage = () => {
     e.preventDefault();
 
     if (!productId || !quantity) {
-      showMessage("Please fill in all required fields");
+      showMessage("Vui lòng điền đầy đủ các trường bắt buộc");
       return;
     }
     const body = {
@@ -45,7 +45,7 @@ const SellPage = () => {
       resetForm();
     } catch (error) {
       showMessage(
-        error.response?.data?.message || "Error Selling Product: " + error,
+        error.response?.data?.message || "Lỗi khi xuất bán sản phẩm: " + error,
       );
     }
   };
@@ -69,17 +69,17 @@ const SellPage = () => {
     <Layout>
       {message && <div className="message">{message}</div>}
       <div className="purchase-form-page">
-        <h1>Sell Product</h1>
+        <h1>Xuất bán sản phẩm</h1>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Select product</label>
+            <label>Chọn sản phẩm</label>
 
             <select
               value={productId}
               onChange={(e) => setProductId(e.target.value)}
               required
             >
-              <option value="">Select a product</option>
+              <option value="">Chọn một sản phẩm</option>
               {products.map((product) => (
                 <option key={product.id} value={product.id}>
                   {product.name}
@@ -89,7 +89,7 @@ const SellPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Quantity</label>
+            <label>Số lượng</label>
             <input
               type="number"
               value={quantity}
@@ -99,7 +99,7 @@ const SellPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Description</label>
+            <label>Mô tả</label>
             <input
               type="text"
               value={description}
@@ -109,7 +109,7 @@ const SellPage = () => {
           </div>
 
           <div className="form-group">
-            <label>Note</label>
+            <label>Ghi chú</label>
             <input
               type="text"
               value={note}
@@ -118,7 +118,7 @@ const SellPage = () => {
             />
           </div>
 
-          <button type="submit">Sell Product</button>
+          <button type="submit">Xuất bán</button>
         </form>
       </div>
     </Layout>

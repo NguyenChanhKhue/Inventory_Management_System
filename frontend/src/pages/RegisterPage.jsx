@@ -16,11 +16,11 @@ const RegisterPage = () => {
     try {
       const registerData = { name, email, password, phoneNumber };
       await ApiService.registerUser(registerData);
-      setMessage("Registration Successfull");
+      setMessage("Đăng ký thành công");
       navigate("/login");
     } catch (error) {
       showMessage(
-        error.response?.data?.message || "Error Registering a User: " + error,
+        error.response?.data?.message || "Lỗi khi đăng ký: " + error,
       );
       console.log(error);
     }
@@ -35,14 +35,14 @@ const RegisterPage = () => {
 
   return (
     <div className="auth-container">
-      <h2>Register</h2>
+      <h2>Đăng ký</h2>
 
       {message && <p className="message">{message}</p>}
 
       <form onSubmit={handleRegister}>
         <input
           type="text"
-          placeholder="Name"
+          placeholder="Họ và tên"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
@@ -58,7 +58,7 @@ const RegisterPage = () => {
 
         <input
           type="password"
-          placeholder="Password"
+          placeholder="Mật khẩu"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -66,16 +66,16 @@ const RegisterPage = () => {
 
         <input
           type="text"
-          placeholder="Phone Number"
+          placeholder="Số điện thoại"
           value={phoneNumber}
           onChange={(e) => setPhoneNumber(e.target.value)}
           required
         />
 
-        <button type="submit">Register</button>
+        <button type="submit">Đăng ký</button>
       </form>
       <p>
-        Already have an account? <a href="/login">Login</a>
+        Đã có tài khoản? <a href="/login">Đăng nhập</a>
       </p>
     </div>
   );
