@@ -5,6 +5,7 @@ import ApiService from "../service/ApiService";
 const CategoryPage = () => {
   const [categories, setCategories] = useState([]);
   const [categoryName, setCategoryName] = useState("");
+  const [parentId, setParentId] = useState("");
   const [message, setMessage] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [editingCategoryId, setEditingCategoryId] = useState(null);
@@ -36,13 +37,16 @@ const CategoryPage = () => {
     }
 
     try {
-      const response = await ApiService.createCategory({ name: categoryName });
+      const payload = { name: categoryName };
+      if (parentId) payload.parentId = parentId;
+
+      const response = await ApiService.createCategory(payload);
       showMessage("Thêm danh mục thành công");
       setCategoryName(""); // clear input
-      setCategories((prevCategories) => [
-        ...prevCategories,
-        response.category ?? { id: Date.now(), name: categoryName },
-      ]);
+      setParentId("");
+      
+      // Better to fetch again to get full tree or just reload page
+      window.location.reload();
     } catch (error) {
       showMessage(
         error.response?.data?.message || "Error Login in a User" + error,
@@ -53,20 +57,13 @@ const CategoryPage = () => {
   // Edit category
   const editCategory = async () => {
     try {
-      await ApiService.updateCategory(editingCategoryId, {
-        name: categoryName,
-      });
+      const payload = { name: categoryName };
+      if (parentId) payload.parentId = parentId;
+
+      await ApiService.updateCategory(editingCategoryId, payload);
       showMessage("Cập nhật danh mục thành công");
-      setCategories((prevCategories) =>
-        prevCategories.map((category) =>
-          category.id === editingCategoryId
-            ? { ...category, name: categoryName }
-            : category,
-        ),
-      );
-      setIsEditing(false);
-      setEditingCategoryId(null);
-      setCategoryName("");
+      
+      window.location.reload();
     } catch (error) {
       showMessage(
         error.response?.data?.message || "Error Loggin in a User: " + error,
@@ -79,6 +76,7 @@ const CategoryPage = () => {
     setIsEditing(true);
     setEditingCategoryId(category.id);
     setCategoryName(category.name);
+    setParentId(category.parentId || "");
   };
 
   //delete category
@@ -120,6 +118,17 @@ const CategoryPage = () => {
               placeholder="Tên danh mục"
               onChange={(e) => setCategoryName(e.target.value)}
             />
+            <select
+              value={parentId}
+              onChange={(e) => setParentId(e.target.value)}
+            >
+              <option value="">-- Không có danh mục cha --</option>
+              {categories.filter(c => c.id !== editingCategoryId).map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
 
             {!isEditing ? (
               <button onClick={addCategory}>Thêm Danh mục</button>
@@ -133,7 +142,10 @@ const CategoryPage = () => {
           <ul className="category-list">
             {categories.map((category) => (
               <li className="category-item" key={category.id}>
-                <span>{category.name}</span>
+                <span>
+                  {category.name} 
+                  {category.parentName && <small style={{color: '#888'}}> (Thuộc: {category.parentName})</small>}
+                </span>
 
                 <div className="category-actions">
                   <button onClick={() => handleEditCategory(category)}>

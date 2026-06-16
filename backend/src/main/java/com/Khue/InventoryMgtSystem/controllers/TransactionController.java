@@ -39,6 +39,11 @@ public class TransactionController {
     return ResponseEntity.ok(transactionService.returnToSupplier(transactionRequest));
   }
 
+  @PostMapping("/adjust")
+  public ResponseEntity<Response> adjustInventory(@RequestBody @Valid TransactionRequest transactionRequest) {
+    return ResponseEntity.ok(transactionService.adjust(transactionRequest));
+  }
+
   @GetMapping("/all")
   public ResponseEntity<Response> getAllTransactions(
       @RequestParam(defaultValue = "0") int page,

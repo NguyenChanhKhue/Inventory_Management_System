@@ -39,5 +39,11 @@ public class ProductDTO {
   private String imgUrl;
   private LocalDateTime createAt;
 
+  private BigDecimal importPrice;
+  private String unit;
+  private String location;
+  private Integer minStock;
+  private Boolean isActive;
+
 
 }

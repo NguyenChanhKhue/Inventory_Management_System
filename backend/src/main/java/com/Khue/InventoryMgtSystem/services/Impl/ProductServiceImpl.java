@@ -53,9 +53,14 @@ public class ProductServiceImpl implements ProductService {
         .name(productDTO.getName())
         .sku(productDTO.getSku())
         .price(productDTO.getPrice())
-        .stockQuantity(productDTO.getStockQuantity())
+        .importPrice(productDTO.getImportPrice())
+        .unit(productDTO.getUnit())
+        .location(productDTO.getLocation())
+        .minStock(productDTO.getMinStock() != null ? productDTO.getMinStock() : 0)
+        .stockQuantity(productDTO.getStockQuantity() != null ? productDTO.getStockQuantity() : 0)
         .description(productDTO.getDescription())
         .category(category)
+        .isActive(true)
         .build();
 
     if (imageFile != null && !imageFile.isEmpty()) {
@@ -101,6 +106,22 @@ public class ProductServiceImpl implements ProductService {
       existingProduct.setStockQuantity(productDTO.getStockQuantity());
     }
 
+    if (productDTO.getImportPrice() != null && productDTO.getImportPrice().compareTo(BigDecimal.ZERO) >= 0) {
+      existingProduct.setImportPrice(productDTO.getImportPrice());
+    }
+
+    if (productDTO.getUnit() != null) {
+      existingProduct.setUnit(productDTO.getUnit());
+    }
+
+    if (productDTO.getLocation() != null) {
+      existingProduct.setLocation(productDTO.getLocation());
+    }
+
+    if (productDTO.getMinStock() != null && productDTO.getMinStock() >= 0) {
+      existingProduct.setMinStock(productDTO.getMinStock());
+    }
+
     if (productDTO.getDescription() != null && !productDTO.getDescription().isBlank()) {
       existingProduct.setDescription(productDTO.getDescription());
     }
@@ -115,7 +136,7 @@ public class ProductServiceImpl implements ProductService {
 
   @Override
   public Response getAllProducts() {
-    List<Product> productList = productRepository.findAll(Sort.by(Sort.Direction.DESC, "id"));
+    List<Product> productList = productRepository.findAllActive();
 
     List<ProductDTO> productDTOList = modelMapper.map(productList, new TypeToken<List<ProductDTO>>() {
     }.getType());
@@ -131,6 +152,10 @@ public class ProductServiceImpl implements ProductService {
   public Response getProductById(Long id) {
     Product product = productRepository.findById(id)
         .orElseThrow(() -> new NotFoundException("Product Not Found"));
+    
+    if (!product.isActive()) {
+        throw new NotFoundException("Product is inactive or deleted");
+    }
 
     return Response.builder()
         .status(200)
@@ -144,18 +169,8 @@ public class ProductServiceImpl implements ProductService {
     Product product = productRepository.findById(id)
         .orElseThrow(() -> new NotFoundException("Product Not Found"));
 
-    if (transactionRepository.existsByProduct_Id(id)) {
-      throw new NameValueRequiredException(
-          "Cannot delete this product because it is already used in transactions");
-    }
-
-    try {
-      productRepository.delete(product);
-      productRepository.flush();
-    } catch (DataIntegrityViolationException ex) {
-      throw new NameValueRequiredException(
-          "Cannot delete this product because it is already used in transactions");
-    }
+    product.setActive(false);
+    productRepository.save(product);
 
     return Response.builder()
         .status(200)
@@ -165,7 +180,7 @@ public class ProductServiceImpl implements ProductService {
 
   @Override
   public Response searchProduct(String input) {
-    List<Product> products = productRepository.findByNameContainingOrDescriptionContaining(input, input);
+    List<Product> products = productRepository.searchActiveProducts(input);
 
     if (products.isEmpty()) {
       throw new NotFoundException("Không tìm thấy sản phẩm nào");

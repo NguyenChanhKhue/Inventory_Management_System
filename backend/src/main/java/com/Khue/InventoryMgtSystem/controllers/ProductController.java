@@ -1,7 +1,5 @@
 package com.Khue.InventoryMgtSystem.controllers;
 
-import java.math.BigDecimal;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,7 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.Khue.InventoryMgtSystem.dto.ProductDTO;
 import com.Khue.InventoryMgtSystem.dto.Response;
+import com.Khue.InventoryMgtSystem.exceptions.NameValueRequiredException;
 import com.Khue.InventoryMgtSystem.services.Impl.ProductService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
 
@@ -25,51 +25,34 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductController {
   private final ProductService productService;
+  private final ObjectMapper objectMapper;
 
   @PostMapping("/add")
   @PreAuthorize("hasAuthority('ADMIN')")
   public ResponseEntity<Response> saveProduct(
-      @RequestParam("imageFile") MultipartFile imageFile,
-      @RequestParam("name") String name,
-      @RequestParam("sku") String sku,
-      @RequestParam("price") BigDecimal price,
-      @RequestParam("stockQuantity") Integer stockQuantity,
-      @RequestParam("categoryId") Long categoryId,
-      @RequestParam(value = "description", required = false) String description) {
-    ProductDTO productDTO = new ProductDTO();
-    productDTO.setName(name);
-    productDTO.setSku(sku);
-    productDTO.setPrice(price);
-    productDTO.setStockQuantity(stockQuantity);
-    productDTO.setCategoryId(categoryId);
-    productDTO.setDescription(description);
-
-    return ResponseEntity.ok(productService.saveProduct(productDTO, imageFile));
+      @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
+      @RequestParam("productData") String productDataJson) {
+    try {
+      ProductDTO productDTO = objectMapper.readValue(productDataJson, ProductDTO.class);
+      return ResponseEntity.ok(productService.saveProduct(productDTO, imageFile));
+    } catch (Exception e) {
+      throw new NameValueRequiredException("Dữ liệu sản phẩm không hợp lệ: " + e.getMessage());
+    }
   }
 
   @PutMapping("/update")
   @PreAuthorize("hasAuthority('ADMIN')")
   public ResponseEntity<Response> updateProduct(
       @RequestParam(value = "imageFile", required = false) MultipartFile imageFile,
-      @RequestParam(value = "name", required = false) String name,
-      @RequestParam(value = "sku", required = false) String sku,
-      @RequestParam(value = "price", required = false) BigDecimal price,
-      @RequestParam(value = "stockQuantity", required = false) Integer stockQuantity,
-      @RequestParam(value = "categoryId", required = false) Long categoryId,
-      @RequestParam(value = "description", required = false) String description,
-      @RequestParam("productId") Long productId) {
-    ProductDTO productDTO = new ProductDTO();
-    productDTO.setName(name);
-    productDTO.setSku(sku);
-    productDTO.setPrice(price);
-    productDTO.setProductId(productId);
-    productDTO.setStockQuantity(stockQuantity);
-    productDTO.setCategoryId(categoryId);
-    productDTO.setDescription(description);
-
-    return ResponseEntity.ok(productService.updateProduct(productDTO, imageFile));
-
+      @RequestParam("productData") String productDataJson) {
+    try {
+      ProductDTO productDTO = objectMapper.readValue(productDataJson, ProductDTO.class);
+      return ResponseEntity.ok(productService.updateProduct(productDTO, imageFile));
+    } catch (Exception e) {
+      throw new NameValueRequiredException("Dữ liệu sản phẩm không hợp lệ: " + e.getMessage());
+    }
   }
+
 
   @GetMapping("/all")
   public ResponseEntity<Response> getAllProducts() {

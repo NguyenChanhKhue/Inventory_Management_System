@@ -11,6 +11,7 @@ const ProductPage = () => {
   const [valueToSearch, setValueToSearch] = useState("");
 
   const navigate = useNavigate();
+  const isAdmin = ApiService.isAdmin();
 
   //Pagination Set-Up
   const [currentPage, setCurrentPage] = useState(1);
@@ -95,12 +96,14 @@ const ProductPage = () => {
               </button>
             </div>
 
-            <button
-              className="add-product-btn"
-              onClick={() => navigate("/add-product")}
-            >
-              Thêm sản phẩm
-            </button>
+            {isAdmin && (
+              <button
+                className="add-product-btn"
+                onClick={() => navigate("/add-product")}
+              >
+                Thêm sản phẩm
+              </button>
+            )}
           </div>
         </div>
 
@@ -116,24 +119,39 @@ const ProductPage = () => {
 
                 <div className="product-info">
                   <h3 className="name">{product.name}</h3>
-                  <p className="sku">Mã: {product.su}</p>
-                  <p className="price">Giá: {product.price}</p>
-                  <p className="quantity">Số lượng: {product.stockQuantity}</p>
+                  <p className="sku">Mã: {product.sku}</p>
+                  <p className="price">Giá bán: {product.price?.toLocaleString()}đ</p>
+                  <p className="price">Giá nhập: {product.importPrice?.toLocaleString()}đ</p>
+                  <p className="sku">ĐVT: {product.unit}</p>
+                  <p className="location" style={{ color: '#ff9800', fontWeight: 'bold' }}>
+                    Vị trí kho: {product.location || "Chưa xác định"}
+                  </p>
                 </div>
 
                 <div className="product-actions">
                   <button
-                    className="edit-btn"
-                    onClick={() => navigate(`/edit-product/${product.id}`)}
+                    className="view-map-btn"
+                    onClick={() => navigate(`/warehouse-map?location=${encodeURIComponent(product.location || '')}`)}
+                    style={{ backgroundColor: '#2196f3', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '4px', cursor: 'pointer', marginRight: '5px' }}
                   >
-                    Sửa
+                    Xem sơ đồ
                   </button>
-                  <button
-                    className="delete-btn"
-                    onClick={() => handleDeleteProduct(product.id)}
-                  >
-                    Xóa
-                  </button>
+                  {isAdmin && (
+                    <>
+                      <button
+                        className="edit-btn"
+                        onClick={() => navigate(`/edit-product/${product.id}`)}
+                      >
+                        Sửa
+                      </button>
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDeleteProduct(product.id)}
+                      >
+                        Xóa
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
