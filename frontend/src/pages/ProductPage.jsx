@@ -143,7 +143,7 @@ const ProductPage = () => {
               onClick={handleExportCSV}
               style={{ backgroundColor: "#4CAF50", marginLeft: "10px" }}
             >
-              Tải Excel (CSV)
+              Xuất Excel (xlsx)
             </button>
           </div>
         </div>

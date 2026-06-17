@@ -10,6 +10,10 @@ const LichSuChungTuComponent = () => {
   const [message, setMessage] = useState("");
   const [filter, setFilter] = useState("");
   const [valueToSearch, setValueToSearch] = useState("");
+  const [filterType, setFilterType] = useState("MONTH");
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   const navigate = useNavigate();
 
@@ -25,12 +29,21 @@ const LichSuChungTuComponent = () => {
           await ApiService.getAllTransactions(valueToSearch);
 
         if (transactionData.status === 200) {
+          let filteredList = transactionData.transactions || [];
+          if (filterType === "DATE" && selectedDate) {
+            filteredList = filteredList.filter(t => t.createAt && t.createAt.startsWith(selectedDate));
+          } else if (filterType === "MONTH") {
+            const monthStr = selectedMonth < 10 ? `0${selectedMonth}` : `${selectedMonth}`;
+            const targetPrefix = `${selectedYear}-${monthStr}`;
+            filteredList = filteredList.filter(t => t.createAt && t.createAt.startsWith(targetPrefix));
+          }
+
           setTotalPages(
-            Math.ceil(transactionData.transactions.length / itemsPerPage),
+            Math.ceil(filteredList.length / itemsPerPage),
           );
 
           setTransactions(
-            transactionData.transactions.slice(
+            filteredList.slice(
               (currentPage - 1) * itemsPerPage,
               currentPage * itemsPerPage,
             ),
@@ -45,7 +58,7 @@ const LichSuChungTuComponent = () => {
     };
 
     getTransactions();
-  }, [currentPage, valueToSearch]);
+  }, [currentPage, valueToSearch, filterType, selectedDate, selectedMonth, selectedYear]);
 
   //Method to show message or errors
   const showMessage = (msg) => {
@@ -64,7 +77,15 @@ const LichSuChungTuComponent = () => {
   const handleExportCSV = async () => {
     try {
       const transactionData = await ApiService.getAllTransactions(valueToSearch);
-      const allTransactions = transactionData.transactions || [];
+      let allTransactions = transactionData.transactions || [];
+      if (filterType === "DATE" && selectedDate) {
+        allTransactions = allTransactions.filter(t => t.createAt && t.createAt.startsWith(selectedDate));
+      } else if (filterType === "MONTH") {
+        const monthStr = selectedMonth < 10 ? `0${selectedMonth}` : `${selectedMonth}`;
+        const targetPrefix = `${selectedYear}-${monthStr}`;
+        allTransactions = allTransactions.filter(t => t.createAt && t.createAt.startsWith(targetPrefix));
+      }
+
       if (allTransactions.length === 0) {
         showMessage("Không có dữ liệu để xuất");
         return;
@@ -72,8 +93,8 @@ const LichSuChungTuComponent = () => {
       
       const excelData = allTransactions.map(t => ({
         "Mã GD": t.id,
-        "Loại giao dịch": t.transactionType || "",
-        "Trạng thái": t.transactionStatus || "",
+        "Loại giao dịch": { IMPORT: 'NHẬP KHO', EXPORT: 'XUẤT KHO', ADJUSTMENT: 'ĐIỀU CHỈNH', RETURN_TO_SUPPLIER: 'HOÀN TRẢ' }[t.transactionType] || t.transactionType || "",
+        "Trạng thái": { COMPLETED: 'HOÀN THÀNH', CANCELLED: 'ĐÃ HỦY', PENDING: 'CHỜ XỬ LÝ', PROCESSING: 'ĐANG XỬ LÝ' }[t.transactionStatus] || t.transactionStatus || "",
         "Tổng tiền (VNĐ)": t.totalPrice || 0,
         "Tổng SP": t.totalProduct || 0,
 
@@ -102,7 +123,7 @@ const LichSuChungTuComponent = () => {
       <div className="transactions-page">
         <div className="transactions-header">
           <h1>Lịch sử Giao dịch</h1>
-          <div className="transaction-search">
+          <div className="transaction-search" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
             <input
               placeholder="Tìm kiếm giao dịch ..."
               value={filter}
@@ -110,11 +131,52 @@ const LichSuChungTuComponent = () => {
               type="text"
             />
             <button onClick={() => handleSearch()}>Tìm kiếm</button>
+
+            <select 
+              value={filterType} 
+              onChange={(e) => { setFilterType(e.target.value); setCurrentPage(1); }}
+              style={{ marginLeft: '10px', padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }}
+            >
+              <option value="MONTH">Lọc theo Tháng/Năm</option>
+              <option value="DATE">Lọc theo Ngày</option>
+            </select>
+
+            {filterType === "MONTH" && (
+              <>
+                <select 
+                  value={selectedMonth} 
+                  onChange={(e) => { setSelectedMonth(parseInt(e.target.value, 10)); setCurrentPage(1); }} 
+                  style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }}
+                >
+                  {Array.from({ length: 12 }, (_, i) => <option key={i + 1} value={i + 1}>Tháng {i + 1}</option>)}
+                </select>
+                <select 
+                  value={selectedYear} 
+                  onChange={(e) => { setSelectedYear(parseInt(e.target.value, 10)); setCurrentPage(1); }} 
+                  style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }}
+                >
+                  {Array.from({ length: 5 }, (_, i) => {
+                    const year = new Date().getFullYear() - i;
+                    return <option key={year} value={year}>{year}</option>;
+                  })}
+                </select>
+              </>
+            )}
+
+            {filterType === "DATE" && (
+              <input 
+                type="date" 
+                value={selectedDate} 
+                onChange={(e) => { setSelectedDate(e.target.value); setCurrentPage(1); }} 
+                style={{ padding: '8px', borderRadius: '5px', border: '1px solid #ccc' }}
+              />
+            )}
+
             <button
               onClick={handleExportCSV}
-              style={{ backgroundColor: "#4CAF50", color: "white", marginLeft: "10px" }}
+              style={{ backgroundColor: "#4CAF50", color: "white", marginLeft: "auto" }}
             >
-              Tải Excel (CSV)
+              Xuất Excel (xlsx)
             </button>
           </div>
         </div>
