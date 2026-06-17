@@ -54,8 +54,12 @@ public class TransactionServiceImpl implements TransactionService {
     Long supplierId = transactionRequest.getSupplierId();
     Integer quantity = transactionRequest.getQuantity();
 
+    if (quantity == null || quantity <= 0) {
+      throw new NameValueRequiredException("Số lượng nhập hàng phải lớn hơn 0");
+    }
+
     if (supplierId == null)
-      throw new NameValueRequiredException("Supplier Id is required");
+      throw new NameValueRequiredException("Vui lòng chọn Nhà cung cấp");
 
     Product product = productRepository.findById(productId)
         .orElseThrow(() -> new NotFoundException("Product Not Found"));
@@ -89,7 +93,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     return Response.builder()
         .status(200)
-        .message("Purchase Made successfully")
+        .message("Nhập hàng thành công")
         .build();
   }
 
@@ -100,6 +104,10 @@ public class TransactionServiceImpl implements TransactionService {
 
     Product product = productRepository.findById(productId)
         .orElseThrow(() -> new NotFoundException("Product Not Found"));
+
+    if (quantity == null || quantity <= 0) {
+      throw new NameValueRequiredException("Số lượng xuất bán phải lớn hơn 0");
+    }
 
     if (quantity > product.getStockQuantity()) {
       throw new NameValueRequiredException("Insufficient stock quantity for this sell");
@@ -130,7 +138,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     return Response.builder()
         .status(200)
-        .message("Product Sale successfully made")
+        .message("Xuất bán thành công")
         .build();
   }
 
@@ -141,10 +149,10 @@ public class TransactionServiceImpl implements TransactionService {
     Integer quantity = transactionRequest.getQuantity();
 
     if (supplierId == null)
-      throw new NameValueRequiredException("Supplier Id is Required");
+      throw new NameValueRequiredException("Vui lòng chọn Nhà cung cấp");
 
     if (quantity == null || quantity <= 0) {
-      throw new NameValueRequiredException("Quantity must be greater than 0");
+      throw new NameValueRequiredException("Số lượng trả hàng phải lớn hơn 0");
     }
 
     Product product = productRepository.findById(productId)
@@ -178,7 +186,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     return Response.builder()
         .status(200)
-        .message("Product Returned in progress")
+        .message("Đã tạo phiếu trả hàng")
         .build();
   }
 
@@ -188,7 +196,7 @@ public class TransactionServiceImpl implements TransactionService {
     Integer newQuantity = transactionRequest.getQuantity();
 
     if (newQuantity == null || newQuantity < 0) {
-      throw new NameValueRequiredException("Quantity must be greater than or equal to 0");
+      throw new NameValueRequiredException("Số lượng phải lớn hơn hoặc bằng 0");
     }
 
     Product product = productRepository.findById(productId)
@@ -221,7 +229,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     return Response.builder()
         .status(200)
-        .message("Inventory Adjustment successfully made")
+        .message("Kiểm kê / Điều chỉnh kho thành công")
         .build();
   }
 
@@ -362,7 +370,7 @@ public class TransactionServiceImpl implements TransactionService {
 
     return Response.builder()
         .status(200)
-        .message("Transaction Status Successfully Updated")
+        .message("Cập nhật trạng thái giao dịch thành công")
         .build();
   }
 

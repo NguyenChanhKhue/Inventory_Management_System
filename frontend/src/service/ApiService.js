@@ -81,6 +81,9 @@ export default class ApiService {
     const response = await axios.post(
       `${this.BASE_URL}/auth/register`,
       registerData,
+      {
+        headers: this.getHeader(),
+      }
     );
     return response.data;
   }

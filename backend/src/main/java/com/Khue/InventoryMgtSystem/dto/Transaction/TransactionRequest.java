@@ -2,7 +2,8 @@ package com.Khue.InventoryMgtSystem.dto.Transaction;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,13 +13,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class TransactionRequest {
-  @Positive(message = "product_id is required")
+  @NotNull(message = "Vui lòng chọn Sản phẩm")
   private Long productId;
 
-  @Positive(message = "quatity is required")
+  @Min(value = 0, message = "Số lượng không được nhỏ hơn 0")
   private int quantity;
 
-  @Positive(message = "supplier_id is required")
   private Long supplierId;
 
   private String description;

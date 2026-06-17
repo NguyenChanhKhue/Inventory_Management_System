@@ -180,12 +180,20 @@ const AddEditProductPage = () => {
 
           <div className="form-group">
             <label>Vị trí kho</label>
-            <input
-              type="text"
+            <select
               value={location}
               onChange={(e) => setLocation(e.target.value)}
-              placeholder="Kệ A - Tầng 2"
-            />
+            >
+              <option value="">-- Chọn Vị trí trong kho --</option>
+              <option value="A">Khu A</option>
+              <option value="B">Khu B</option>
+              <option value="C">Khu C</option>
+              <option value="D">Khu D</option>
+              <option value="E">Khu E</option>
+              <option value="F">Khu F</option>
+              <option value="G">Khu G</option>
+              <option value="H">Khu H</option>
+            </select>
           </div>
 
           <div className="form-group">
