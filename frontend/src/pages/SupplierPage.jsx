@@ -49,6 +49,19 @@ const SupplierPage = () => {
     }
   };
 
+  const handleToggleSupplier = async (supplier) => {
+    try {
+      if (window.confirm(`Bạn có chắc chắn muốn ${supplier.active ? 'Ngừng hợp tác' : 'Mở lại'} nhà cung cấp này?`)) {
+        await ApiService.updateSupplier(supplier.id, { active: !supplier.active });
+        window.location.reload();
+      }
+    } catch (error) {
+      showMessage(
+        error.response?.data?.message || "Lỗi cập nhật trạng thái: " + error,
+      );
+    }
+  };
+
   return (
     <Layout>
       {message && <div className="message">{message}</div>}
@@ -66,10 +79,21 @@ const SupplierPage = () => {
       {suppliers && (
         <ul className="supplier-list">
           {suppliers.map((supplier) => (
-            <li className="supplier-item" key={supplier.id}>
-              <span>{supplier.name}</span>
+            <li className="supplier-item" key={supplier.id} style={{ opacity: supplier.active ? 1 : 0.6 }}>
+              <span>
+                {supplier.name} 
+                <span style={{ color: supplier.active ? "green" : "red", marginLeft: "10px", fontSize: "14px", fontWeight: "bold" }}>
+                  {supplier.active ? "(Đang giao dịch)" : "(Ngừng hợp tác)"}
+                </span>
+              </span>
 
               <div className="supplier-actions">
+                <button
+                  onClick={() => handleToggleSupplier(supplier)}
+                  style={{ backgroundColor: supplier.active ? "#ff9800" : "#4caf50", color: "white", marginRight: "5px" }}
+                >
+                  {supplier.active ? "Tạm ngưng" : "Mở lại"}
+                </button>
                 <button
                   onClick={() => navigate(`/edit-supplier/${supplier.id}`)}
                 >

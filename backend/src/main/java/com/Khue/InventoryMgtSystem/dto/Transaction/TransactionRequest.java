@@ -24,4 +24,5 @@ public class TransactionRequest {
   private String description;
 
   private String note;
+
 }

@@ -73,4 +73,9 @@ public class ProductController {
   public ResponseEntity<Response> searchProduct(@RequestParam String input) {
     return ResponseEntity.ok(productService.searchProduct(input));
   }
+
+  @GetMapping("/low-stock")
+  public ResponseEntity<Response> getLowStockProducts() {
+    return ResponseEntity.ok(productService.getLowStockProducts());
+  }
 }

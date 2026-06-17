@@ -12,6 +12,7 @@ import com.Khue.InventoryMgtSystem.exceptions.NotFoundException;
 import com.Khue.InventoryMgtSystem.models.Category;
 import com.Khue.InventoryMgtSystem.repository.CategoryRepository;
 import com.Khue.InventoryMgtSystem.services.CategoryService;
+import com.Khue.InventoryMgtSystem.services.AuditLogService;
 import org.modelmapper.TypeToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,8 @@ public class CategoryServiceImpl implements CategoryService {
 
 	private final ModelMapper modelMapper;
 
+	private final AuditLogService auditLogService;
+
 	@Override
 	public Response createCategory(CategoryDTO categoryDTO) {
 		Category categoryToSave = new Category();
@@ -37,6 +40,8 @@ public class CategoryServiceImpl implements CategoryService {
 		}
 
 		categoryRepository.save(categoryToSave);
+
+		auditLogService.logAction("CREATE", "Category", categoryToSave.getId(), "Tạo mới danh mục: " + categoryToSave.getName());
 
 		return Response.builder()
 				.status(200)
@@ -100,6 +105,8 @@ public class CategoryServiceImpl implements CategoryService {
 		
 		categoryRepository.save(existingCategory);
 
+		auditLogService.logAction("UPDATE", "Category", existingCategory.getId(), "Cập nhật danh mục: " + existingCategory.getName());
+
 		return Response.builder()
 				.status(200)
 				.message("Category Was Successfully Updated")
@@ -113,6 +120,8 @@ public class CategoryServiceImpl implements CategoryService {
 				.orElseThrow(() -> new NotFoundException("Category Not Found"));
 
 		categoryRepository.deleteById(id);
+
+		auditLogService.logAction("DELETE", "Category", id, "Xóa danh mục (ID: " + id + ")");
 
 		return Response.builder()
 				.status(200)

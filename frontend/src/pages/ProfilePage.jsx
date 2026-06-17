@@ -164,6 +164,7 @@ const ProfilePage = () => {
                       name="role"
                       value={formData.role}
                       onChange={handleInputChange}
+                      disabled
                     >
                       <option value="ADMIN">ADMIN</option>
                       <option value="MANAGER">MANAGER</option>

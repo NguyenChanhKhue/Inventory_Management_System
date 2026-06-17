@@ -25,6 +25,7 @@ import com.Khue.InventoryMgtSystem.models.Product;
 import com.Khue.InventoryMgtSystem.repository.CategoryRepository;
 import com.Khue.InventoryMgtSystem.repository.ProductRepository;
 import com.Khue.InventoryMgtSystem.repository.TransactionRepository;
+import com.Khue.InventoryMgtSystem.services.AuditLogService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,6 +45,8 @@ public class ProductServiceImpl implements ProductService {
 
   private final Cloudinary cloudinary;
 
+  private final AuditLogService auditLogService;
+
   @Override
   public Response saveProduct(ProductDTO productDTO, MultipartFile imageFile) {
     Category category = categoryRepository.findById(productDTO.getCategoryId())
@@ -52,7 +55,7 @@ public class ProductServiceImpl implements ProductService {
     Product productToSave = Product.builder()
         .name(productDTO.getName())
         .sku(productDTO.getSku())
-        .price(productDTO.getPrice())
+
         .importPrice(productDTO.getImportPrice())
         .unit(productDTO.getUnit())
         .location(productDTO.getLocation())
@@ -68,6 +71,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     productRepository.save(productToSave);
+
+    auditLogService.logAction("CREATE", "Product", productToSave.getId(), "Tạo mới sản phẩm: " + productToSave.getName());
 
     return Response.builder()
         .status(200)
@@ -98,9 +103,7 @@ public class ProductServiceImpl implements ProductService {
       existingProduct.setSku(productDTO.getSku());
     }
 
-    if (productDTO.getPrice() != null && productDTO.getPrice().compareTo(BigDecimal.ZERO) >= 0) {
-      existingProduct.setPrice(productDTO.getPrice());
-    }
+
 
     if (productDTO.getStockQuantity() != null && productDTO.getStockQuantity() >= 0) {
       existingProduct.setStockQuantity(productDTO.getStockQuantity());
@@ -127,6 +130,8 @@ public class ProductServiceImpl implements ProductService {
     }
 
     productRepository.save(existingProduct);
+
+    auditLogService.logAction("UPDATE", "Product", existingProduct.getId(), "Cập nhật sản phẩm: " + existingProduct.getName());
 
     return Response.builder()
         .status(200)
@@ -172,6 +177,8 @@ public class ProductServiceImpl implements ProductService {
     product.setActive(false);
     productRepository.save(product);
 
+    auditLogService.logAction("DELETE", "Product", product.getId(), "Xóa sản phẩm: " + product.getName());
+
     return Response.builder()
         .status(200)
         .message("Đã xóa sản phẩm thành công")
@@ -186,6 +193,19 @@ public class ProductServiceImpl implements ProductService {
       throw new NotFoundException("Không tìm thấy sản phẩm nào");
     }
 
+    List<ProductDTO> productDTOList = modelMapper.map(products, new TypeToken<List<ProductDTO>>() {
+    }.getType());
+
+    return Response.builder()
+        .status(200)
+        .message("success")
+        .products(productDTOList)
+        .build();
+  }
+
+  @Override
+  public Response getLowStockProducts() {
+    List<Product> products = productRepository.findLowStockProducts();
     List<ProductDTO> productDTOList = modelMapper.map(products, new TypeToken<List<ProductDTO>>() {
     }.getType());
 

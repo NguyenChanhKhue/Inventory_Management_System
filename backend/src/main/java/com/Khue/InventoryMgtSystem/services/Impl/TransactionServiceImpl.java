@@ -30,6 +30,7 @@ import com.Khue.InventoryMgtSystem.repository.TransactionRepository;
 
 import com.Khue.InventoryMgtSystem.services.TransactionService;
 import com.Khue.InventoryMgtSystem.services.UserService;
+import com.Khue.InventoryMgtSystem.services.AuditLogService;
 import com.Khue.InventoryMgtSystem.specification.TransactionFilter;
 
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,7 @@ public class TransactionServiceImpl implements TransactionService {
   private final SupplierRepository supplierRepository;
   private final UserService userService;
   private final ModelMapper modelMapper;
+  private final AuditLogService auditLogService;
 
   @Override
   public Response purchase(TransactionRequest transactionRequest) {
@@ -70,18 +72,20 @@ public class TransactionServiceImpl implements TransactionService {
 
     // Tạo tracsaction
     Transaction transaction = Transaction.builder()
-        .transactionType(TransactionType.PURCHASE)
+        .transactionType(TransactionType.IMPORT)
         .transactionStatus(TransactionStatus.COMPLETED)
         .product(product)
         .user(user)
         .supplier(supplier)
         .totalProduct(quantity)
-        .totalPrice(product.getPrice().multiply(BigDecimal.valueOf(quantity))) // SL * price
+        .totalPrice(product.getImportPrice().multiply(BigDecimal.valueOf(quantity))) // SL * importPrice
         .description(transactionRequest.getDescription())
         .note(transactionRequest.getNote())
         .build();
 
     transactionRepository.save(transaction);
+
+    auditLogService.logAction("CREATE", "Transaction", transaction.getId(), "Tạo phiếu nhập hàng (SL: " + quantity + ", SP: " + product.getName() + ")");
 
     return Response.builder()
         .status(200)
@@ -109,17 +113,21 @@ public class TransactionServiceImpl implements TransactionService {
 
     // create a transaction
     Transaction transaction = Transaction.builder()
-        .transactionType(TransactionType.SALE)
+        .transactionType(TransactionType.EXPORT)
         .transactionStatus(TransactionStatus.COMPLETED)
         .product(product)
         .user(user)
         .totalProduct(quantity)
-        .totalPrice(product.getPrice().multiply(BigDecimal.valueOf(quantity)))
+        .totalPrice(product.getImportPrice().multiply(BigDecimal.valueOf(quantity)))
         .description(transactionRequest.getDescription())
         .note(transactionRequest.getNote())
+
         .build();
 
     transactionRepository.save(transaction);
+
+    auditLogService.logAction("CREATE", "Transaction", transaction.getId(), "Tạo phiếu xuất bán (SL: " + quantity + ", SP: " + product.getName() + ")");
+
     return Response.builder()
         .status(200)
         .message("Product Sale successfully made")
@@ -151,10 +159,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     User user = userService.getCurrentLoggedInUser();
 
-    // update product
-    product.setStockQuantity(product.getStockQuantity() - quantity);
-    productRepository.save(product);
-
     // create a transaction
     Transaction transaction = Transaction.builder()
         .transactionType(TransactionType.RETURN_TO_SUPPLIER)
@@ -163,12 +167,14 @@ public class TransactionServiceImpl implements TransactionService {
         .user(user)
         .supplier(supplier)
         .totalProduct(quantity)
-        .totalPrice(BigDecimal.ZERO)
+        .totalPrice(product.getImportPrice().multiply(BigDecimal.valueOf(quantity)))
         .description(transactionRequest.getDescription())
         .note(transactionRequest.getNote())
         .build();
 
     transactionRepository.save(transaction);
+
+    auditLogService.logAction("CREATE", "Transaction", transaction.getId(), "Tạo phiếu trả hàng cho NCC (SL: " + quantity + ", SP: " + product.getName() + ")");
 
     return Response.builder()
         .status(200)
@@ -210,6 +216,8 @@ public class TransactionServiceImpl implements TransactionService {
         .build();
 
     transactionRepository.save(transaction);
+
+    auditLogService.logAction("CREATE", "Transaction", transaction.getId(), "Tạo phiếu điều chỉnh kho (Chênh lệch: " + difference + ", SP: " + product.getName() + ")");
 
     return Response.builder()
         .status(200)
@@ -291,10 +299,66 @@ public class TransactionServiceImpl implements TransactionService {
     Transaction existingTransaction = transactionRepository.findById(transactionId)
         .orElseThrow(() -> new NotFoundException("Transaction Not Found"));
 
+    TransactionStatus oldStatus = existingTransaction.getTransactionStatus();
+
+    if (oldStatus == status) {
+        throw new NameValueRequiredException("Trạng thái mới không được trùng với trạng thái hiện tại.");
+    }
+
+    if (oldStatus == TransactionStatus.CANCELLED) {
+        throw new NameValueRequiredException("Phiếu giao dịch này đã bị Hủy, không thể thay đổi trạng thái được nữa.");
+    }
+
+    if (oldStatus == TransactionStatus.COMPLETED && status == TransactionStatus.PROCESSING) {
+        throw new NameValueRequiredException("Phiếu đã Hoàn thành không thể quay lại trạng thái Đang xử lý.");
+    }
+
+    // Logic Hoàn Thành Phiếu Trả Hàng
+    if (status == TransactionStatus.COMPLETED && oldStatus == TransactionStatus.PROCESSING) {
+      if (existingTransaction.getTransactionType() == TransactionType.RETURN_TO_SUPPLIER) {
+        Product product = existingTransaction.getProduct();
+        int qty = existingTransaction.getTotalProduct();
+        if (product.getStockQuantity() < qty) {
+           throw new NameValueRequiredException("Không thể hoàn thành phiếu trả hàng vì tồn kho hiện tại không đủ.");
+        }
+        product.setStockQuantity(product.getStockQuantity() - qty);
+        productRepository.save(product);
+      }
+    }
+
+    // Logic Hủy Phiếu và Hoàn Trả Kho
+    if (status == TransactionStatus.CANCELLED && oldStatus != TransactionStatus.CANCELLED) {
+      Product product = existingTransaction.getProduct();
+      int qty = existingTransaction.getTotalProduct();
+      TransactionType type = existingTransaction.getTransactionType();
+
+      if (type == TransactionType.EXPORT) {
+        // Hủy bán -> Trả hàng về kho
+        product.setStockQuantity(product.getStockQuantity() + qty);
+      } else if (type == TransactionType.IMPORT) {
+        // Hủy nhập -> Rút hàng khỏi kho
+        if (product.getStockQuantity() < qty) {
+           throw new NameValueRequiredException("Không thể hủy phiếu nhập vì số lượng tồn kho hiện tại không đủ để trừ");
+        }
+        product.setStockQuantity(product.getStockQuantity() - qty);
+      } else if (type == TransactionType.RETURN_TO_SUPPLIER) {
+        // Hủy trả hàng -> Hàng quay lại kho (CHỈ KHI TRƯỚC ĐÓ ĐÃ HOÀN THÀNH VÀ TRỪ KHO)
+        if (oldStatus == TransactionStatus.COMPLETED) {
+           product.setStockQuantity(product.getStockQuantity() + qty);
+        }
+      } else if (type == TransactionType.ADJUSTMENT) {
+        // Hủy điều chỉnh -> Trả về như cũ (qty là phần chênh lệch)
+        product.setStockQuantity(product.getStockQuantity() - qty);
+      }
+      productRepository.save(product);
+    }
+
     existingTransaction.setTransactionStatus(status);
     existingTransaction.setUpdateAt(LocalDateTime.now());
 
     transactionRepository.save(existingTransaction);
+
+    auditLogService.logAction("UPDATE", "Transaction", existingTransaction.getId(), "Cập nhật trạng thái phiếu giao dịch thành: " + status.name());
 
     return Response.builder()
         .status(200)

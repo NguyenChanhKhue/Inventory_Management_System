@@ -29,5 +29,5 @@ public class SupplierDTO {
 
   private String address;
 
-
+  private Boolean active;
 }

@@ -66,9 +66,6 @@ const LoginPage = () => {
       <p className="auth-helper-text">
         <Link to="/forgot-password">Quên mật khẩu?</Link>
       </p>
-      <p>
-        Chưa có tài khoản? <a href="/register">Đăng ký</a>
-      </p>
     </div>
   );
 };

@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import ApiService from "../service/ApiService";
 import PaginationComponent from "../components/PaginationComponents";
 
 const InventoryPage = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [message, setMessage] = useState("");
   const [filter, setFilter] = useState("");
@@ -169,13 +171,22 @@ const InventoryPage = () => {
                       </div>
                     </div>
                   ) : (
-                    <button
-                      className="edit-btn"
-                      onClick={() => startAdjusting(product)}
-                      style={{ backgroundColor: "#f39c12" }}
-                    >
-                      Kiểm kê / Điều chỉnh
-                    </button>
+                    <div style={{ display: "flex", gap: "5px", justifyContent: "center" }}>
+                      <button
+                        className="edit-btn"
+                        onClick={() => startAdjusting(product)}
+                        style={{ backgroundColor: "#f39c12" }}
+                      >
+                        Kiểm kê / Điều chỉnh
+                      </button>
+                      <button
+                        className="view-map-btn"
+                        onClick={() => navigate(`/warehouse-map?location=${encodeURIComponent(product.location || '')}`)}
+                        style={{ backgroundColor: '#2196f3', color: 'white', border: 'none', padding: '8px 12px', borderRadius: '4px', cursor: 'pointer' }}
+                      >
+                        Sơ đồ kho
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>

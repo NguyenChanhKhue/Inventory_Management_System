@@ -39,7 +39,7 @@ const AddEditSupplierPage = () => {
   //handle form submission for both add and edit supplier
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const supplierData = { name, contactInfo, address };
+    const supplierData = { name, contactInfo, address, active: true };
 
     try {
       if (isEditing) {

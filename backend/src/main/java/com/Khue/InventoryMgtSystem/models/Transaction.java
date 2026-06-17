@@ -52,8 +52,11 @@ public class Transaction {
 
   private String note ;
 
+
+
   @Column(name = "create_at")
-  private final LocalDateTime createAt =  LocalDateTime.now();
+  @Builder.Default
+  private LocalDateTime createAt =  LocalDateTime.now();
 
   @Column(name = "update_at")
   private LocalDateTime updateAt;

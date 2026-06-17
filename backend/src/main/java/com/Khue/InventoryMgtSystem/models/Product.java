@@ -43,8 +43,6 @@ public class Product {
   @Column(unique = true)
   private String sku;
 
-  @Positive(message = "product price must be a posotive value")
-  private BigDecimal price;
 
   @Min(value = 0 , message = "stock quantity cannot be negative value")
   private int stockQuantity;
@@ -75,7 +73,7 @@ public class Product {
 
   @Override
   public String toString() {
-    return "Product [id=" + id + ", name=" + name + ", sku=" + sku + ", price=" + price + ", stockQuantity="
+    return "Product [id=" + id + ", name=" + name + ", sku=" + sku + ", stockQuantity="
         + stockQuantity + ", descripton=" + description + ", expDateTime=" + expDateTime + ", imgUrl=" + imgUrl
         + ", createAt=" + createAt + "]";
   }
